@@ -54,7 +54,7 @@
 
 ### 방송 목록과 상세 화면, PC·모바일에서 송출한 방송을 각각 다른 기기에서 수신·재생
 
-- 메인 탭: 방송 중(시청자 수) / 전체 방송(최신순) / 다시보기 — `src/app/page.tsx`, 시청자 수 `src/features/live/viewer-counts.ts`
+- 홈: 대표 영상(방송 중이 있으면 LIVE, 없으면 최근 녹화) + 내 방송 시작 → 방송 중(시청자 수) → 최근 다시보기(실제 녹화 프레임 썸네일) — `src/app/page.tsx`. 전체 방송(최신순) `src/app/broadcasts/page.tsx`, 시청자 수 `src/features/live/viewer-counts.ts`
 - 상세: 상태별 화면(대기·방송 중·종료) — `src/app/broadcasts/[id]/page.tsx`
 - 시청: 로그인 없이 구독 전용 토큰(`getViewerConnection`)으로 재생 — `src/features/live/live-player.tsx`
 
@@ -141,7 +141,7 @@
 
 ### 녹화 영상 목록과 상세 조회 및 재생
 
-- 메인 **다시보기** 탭(목록), `/recordings/[id]`(상세·재생). `hls.js`로 재생하고 Safari는 기본 HLS 재생을 씁니다.
+- 홈 **최근 다시보기**(목록, 녹화 앞부분 프레임을 썸네일로), `/recordings/[id]`(상세·재생). HLS를 직접 재생하는 브라우저(Safari·최신 Chrome)는 그대로, 그 밖에는 `hls.js`로 재생합니다 — `src/features/recordings/replay-player.tsx`.
 - 코드: `src/features/recordings/queries.ts`, `src/features/recordings/recording-card.tsx`, `src/features/recordings/replay-player.tsx`, `src/app/recordings/[id]/page.tsx`
 
 ### 영상 정보와 저장 위치를 영구 저장

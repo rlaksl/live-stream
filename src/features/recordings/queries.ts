@@ -17,16 +17,16 @@ export type Recording = {
 const SELECT = "id, broadcast_id, egress_id, status, playlist_path, started_at, ended_at, broadcast:broadcasts(title, owner:profiles(nickname))";
 
 /** 다시보기 목록: 저장이 끝난 녹화만, 최신순 */
-export async function listRecordings(): Promise<Recording[]> {
+export async function listRecordings(limit = 60): Promise<(Recording & { url: string })[]> {
   const { data, error } = await createAdminClient()
     .from("recordings")
     .select(SELECT)
     .eq("status", "ready")
     .order("started_at", { ascending: false })
-    .limit(60)
+    .limit(limit)
     .returns<Recording[]>();
   if (error) throw error;
-  return data;
+  return data.map((r) => ({ ...r, url: playlistUrl(r.playlist_path) }));
 }
 
 export async function findRecording(id: string): Promise<(Recording & { url: string }) | null> {
