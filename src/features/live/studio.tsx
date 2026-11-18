@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import type { BroadcastStatus } from "@/features/broadcasts/types";
 import { startBroadcastRecording, stopBroadcastRecording } from "@/features/recordings/actions";
-import { endBroadcast, getPublishConnection, startBroadcast } from "./actions";
+import { cancelStart, endBroadcast, getPublishConnection, startBroadcast } from "./actions";
 
 type Source = "screen" | "camera";
 
@@ -32,6 +32,7 @@ type Phase = "setup" | "preview" | "live" | "ended";
  * 방송자의 송출 화면.
  * 1) 소스를 골라 미리보기(브라우저 권한 요청은 클릭 직후에 해야 하므로 방송 시작 전에 미디어를 먼저 얻는다)
  * 2) 방송 시작: 서버가 상태를 `방송 중`으로 바꾸고 송출 토큰을 준다 → LiveKit에 트랙을 송출
+ *    송출에 실패하면 상태를 `대기`로 되돌리고 장치를 정리해 처음부터 다시 시도할 수 있게 한다
  * 3) 방송 종료: 서버가 상태를 `종료`로 바꾸고 LiveKit 방을 닫는다
  */
 export function Studio({ broadcastId, initialStatus }: { broadcastId: string; initialStatus: BroadcastStatus }) {
@@ -41,6 +42,8 @@ export function Studio({ broadcastId, initialStatus }: { broadcastId: string; in
   const [chosenSource, setSource] = useState<Source | null>(null);
   const source = chosenSource ?? (canShareScreen ? "screen" : "camera");
   const [phase, setPhase] = useState<Phase>(initialStatus === "ended" ? "ended" : "setup");
+  // 서버의 방송 상태. 이 화면에서 시작하거나 시작을 되돌리면 바뀐다.
+  const [status, setStatus] = useState(initialStatus);
   const [tracks, setTracks] = useState<LocalTrack[]>([]);
   const [recordEnabled, setRecordEnabled] = useState(false);
   const [micMuted, setMicMuted] = useState(false);
@@ -97,19 +100,24 @@ export function Studio({ broadcastId, initialStatus }: { broadcastId: string; in
 
   async function goLive() {
     setBusy(true);
+    // 이 화면에서 대기 → 방송 중으로 바꿨을 때만 실패 시 되돌린다 (다른 탭이 송출 중인 방송은 건드리지 않는다)
+    let startedHere = false;
+    let room: Room | undefined;
     try {
       // 이미 방송 중인 방송(송출 중 새로고침 등)은 상태를 바꾸지 않고 다시 연결만 한다
-      if (initialStatus === "waiting") {
+      if (status === "waiting") {
         const started = await startBroadcast(broadcastId, recordEnabled);
         if ("error" in started) throw new Error(started.error);
+        startedHere = true;
+        setStatus("live");
       }
       const connection = await getPublishConnection(broadcastId);
       if ("error" in connection) throw new Error(connection.error);
 
-      const room = new Room();
-      room.on(RoomEvent.Disconnected, () => setPhase("ended"));
+      room = new Room();
       await room.connect(connection.serverUrl, connection.token);
       for (const track of tracks) await room.localParticipant.publishTrack(track);
+      room.on(RoomEvent.Disconnected, () => setPhase("ended"));
       roomRef.current = room;
 
       // 브라우저의 "공유 중지"를 누르면 방송도 종료한다
@@ -119,7 +127,17 @@ export function Studio({ broadcastId, initialStatus }: { broadcastId: string; in
 
       if (recordEnabled) await startRecordingFor10Minutes();
     } catch (error) {
-      toast.error((error as Error).message);
+      // 상태를 먼저 되돌린 뒤 연결을 끊는다. 순서가 바뀌면 웹훅(방송자 이탈)이 방송을 종료시킨다.
+      if (startedHere) {
+        await cancelStart(broadcastId);
+        setStatus("waiting");
+      }
+      await room?.disconnect();
+      tracks.forEach((t) => t.stop());
+      setTracks([]);
+      setPhase("setup");
+      router.refresh();
+      toast.error(`송출을 시작하지 못했습니다. 다시 시도하세요. (${(error as Error).message})`);
     } finally {
       setBusy(false);
     }
@@ -230,14 +248,14 @@ export function Studio({ broadcastId, initialStatus }: { broadcastId: string; in
               탭 소리가 공유되지 않았습니다. 탭 소리도 보내려면 다시 미리보기를 시작해 &apos;오디오 공유&apos;를 켜세요.
             </p>
           )}
-          {initialStatus === "waiting" && (
+          {status === "waiting" && (
             <div className="flex items-center gap-3">
               <Switch id="record" checked={recordEnabled} onCheckedChange={setRecordEnabled} />
               <Label htmlFor="record">녹화하기 (최대 10분, 다시보기에 저장)</Label>
             </div>
           )}
           <Button size="lg" className="w-full" disabled={busy} onClick={goLive}>
-            {initialStatus === "live" ? "송출 다시 연결" : "방송 시작"}
+            {status === "live" ? "송출 다시 연결" : "방송 시작"}
           </Button>
         </div>
       )}
