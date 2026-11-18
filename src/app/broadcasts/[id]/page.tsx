@@ -6,15 +6,18 @@ import { DeleteBroadcastButton } from "@/features/broadcasts/delete-button";
 import { OffAirScreen } from "@/features/broadcasts/off-air-screen";
 import { findBroadcast } from "@/features/broadcasts/queries";
 import { StatusBadge } from "@/features/broadcasts/status-badge";
+import { CommentPanel } from "@/features/comments/comment-panel";
+import { listComments } from "@/features/comments/queries";
 import { LivePlayer } from "@/features/live/live-player";
 import { findRecordingOfBroadcast } from "@/features/recordings/queries";
 
 export default async function BroadcastPage({ params }: PageProps<"/broadcasts/[id]">) {
   const { id } = await params;
-  const [broadcast, user, recording] = await Promise.all([
+  const [broadcast, user, recording, comments] = await Promise.all([
     findBroadcast(id),
     getCurrentUser(),
     findRecordingOfBroadcast(id),
+    listComments(id),
   ]);
   if (!broadcast) notFound();
   const isOwner = user?.id === broadcast.owner_id;
@@ -53,7 +56,9 @@ export default async function BroadcastPage({ params }: PageProps<"/broadcasts/[
         )}
       </section>
 
-      <aside className="space-y-6">{/* 댓글(티켓 08)·후원(티켓 09) */}</aside>
+      <aside className="space-y-6">
+        <CommentPanel broadcastId={id} currentUserId={user?.id ?? null} initialComments={comments} />
+      </aside>
     </div>
   );
 }

@@ -22,6 +22,7 @@ LiveKit Participant egress → HLS 조각 → Supabase Storage(또는 R2). 녹�
 - Participant egress는 화면 공유 시 마이크가 빠져 StartEgress(MediaSource + AudioConfig)로 바꿈. 1000Hz(탭)+440Hz(마이크) 테스트 음 둘 다 녹화 확인.
 - Supabase S3 업로드 성공, 공개 버킷 `recordings`(0003). 결과는 `info.result.segments`에 있다(segmentResults 아님).
 - 로컬은 웹훅이 오지 않아 화면 표시 시 egress 상태를 직접 조회하는 대체 경로로 ready 처리 확인. 배포 후 웹훅 경로 확인 필요.
-- 미확인: 10분 자동 중지(한도 10분 소모라 실테스트 안 함), 삭제 시 파일 삭제(테스트 방송 삭제 승인 대기).
+- 미확인: 10분 자동 중지(한도 10분 소모라 실테스트 안 함).
+- 삭제 시 파일 삭제 확인: 화면 삭제 버튼 → 방송·녹화 행·버킷 파일 9개 삭제(공개 주소 400). 테스트 방송 6개 모두 화면에서 정리.
 - 녹화 한도 사용: 약 1분(26초 × 2).
 - 남은 것: 시연용 녹화 1~2개 생성(배포 후).
