@@ -30,3 +30,8 @@ LiveKit Participant egress → HLS 조각 → Supabase Storage(또는 R2). 녹�
 - 2026-11-18 남은 확인(배포 DB에 녹화 0건):
   - 시연용 녹화를 배포 주소에서 만들면 egress 웹훅 경로도 함께 확인된다(웹훅 없이도 화면 표시 시 직접 조회로 ready 처리되므로, 녹화가 ready가 됐다는 것만으로는 웹훅 경로를 구분할 수 없음 → LiveKit 대시보드 웹훅 로그로 확인).
   - 10분 자동 중지는 한도(월 60분) 때문에 실테스트하지 않는다(코드 확인만: studio.tsx `MAX_RECORDING_MS`).
+- 2026-11-19 웹훅 경로 확인:
+  - 기존 녹화 2개(`ready`)는 웹훅과 화면 표시 시 직접 조회(`syncRecording`)가 같은 `finishRecording`을 써서 DB 값만으로는 어느 경로인지 구분할 수 없다.
+  - 배포 엔드포인트 확인: 존재하지 않는 egress id로 `egress_ended`를 보냄(바뀐 행 0건). 서명 없음 → 401 `invalid signature`, 올바른 서명 → 200 `ok`. 배포된 코드가 서명을 검증하고 `egress_ended`를 처리한다.
+  - LiveKit이 이 주소로 웹훅을 보내는 것은 방송자 탭 닫기 → `participant_left`로 약 1.3초 만에 종료 처리된 것으로 이미 확인됨(checklist "방송 중과 종료 상태"). `egress_ended`도 같은 웹훅 설정으로 전달된다.
+  - **남은 직접 확인(다음 실제 녹화 때, 한도 추가 사용 없음):** 방송 종료 직후 DB 행을 1초 간격으로 지켜본다. 시청자 화면의 자동 새로고침은 방이 닫히는 순간(녹화 업로드 완료 전, egress 상태 ENDING)이라 직접 조회는 아무것도 하지 않는다. 그 뒤 몇 초 안에 아무도 페이지를 열지 않았는데 `ready`가 되면 웹훅 경로다.

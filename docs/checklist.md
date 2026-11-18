@@ -38,6 +38,7 @@
 
 - 터치 기기(`pointer: coarse`)이거나 화면 공유를 지원하지 않으면 `카메라` 소스가 기본입니다. `createLocalVideoTrack`(카메라) + `createLocalAudioTrack`(마이크)을 송출합니다.
 - 방송 중 전면·후면 카메라 전환(`restartTrack({ facingMode })`)과 마이크 끄기/켜기를 제공합니다.
+- 카메라는 여러 화질 동시 전송(simulcast)을 끄고 **720p 한 줄기**(`VideoPresets.h720`)로 송출합니다. 안드로이드 크롬 카메라 방송의 녹화가 소리만 있고 영상이 검게 저장되는 문제가 있었기 때문입니다(ffprobe로 확인: 영상 프레임 약 50바이트·밝기 16으로 완전 검정, PC 화면 공유 녹화는 정상). 화면 공유는 기본 simulcast를 유지합니다. 코드: `src/features/live/studio.tsx` (`goLive`의 `publishTrack` 옵션)
 - 코드: `src/features/live/studio.tsx` (`preview`, `flipCamera`, `toggleMic`)
 
 ### 모바일에서 방송을 시작하고 종료한다
@@ -148,7 +149,7 @@
 ### 라이브 방송을 녹화 영상으로 저장
 
 - 송출 화면의 **녹화하기**(기본 꺼짐)를 켠 방송만 방송 시작 시 LiveKit egress(방송자 영상 + 모든 오디오 트랙 믹스)를 시작해 HLS 조각을 Supabase Storage(S3 호환)에 저장합니다. 최대 10분 뒤 녹화만 중지하고 방송은 계속됩니다.
-- `egress_ended` 웹훅으로 `ready`/`failed`를 기록하고, 웹훅이 없을 때는 화면 표시 시 LiveKit에 직접 조회합니다. 녹화가 실패해도 송출은 계속됩니다.
+- `egress_ended` 웹훅으로 `ready`/`failed`를 기록하고(배포 환경 확인 2026-11-19: 서명된 `egress_ended`는 200, 서명 없는 요청은 401), 웹훅이 없을 때는 화면 표시 시 LiveKit에 직접 조회합니다. 녹화가 실패해도 송출은 계속됩니다.
 - 코드: `src/features/recordings/egress.ts` (`startRecording`, `stopRecording`, `finishRecording`, `syncRecording`), `src/features/recordings/actions.ts`, `src/features/live/studio.tsx` (녹화 토글, 10분 타이머), [ADR-0002](adr/0002-recording-as-hls-segments.md)
 
 ### 녹화 영상 목록과 상세 조회 및 재생
