@@ -1,0 +1,261 @@
+"use client";
+
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useRouter } from "next/navigation";
+import {
+  LocalAudioTrack,
+  LocalVideoTrack,
+  Room,
+  RoomEvent,
+  Track,
+  TrackEvent,
+  createLocalAudioTrack,
+  createLocalScreenTracks,
+  createLocalVideoTrack,
+  type LocalTrack,
+} from "livekit-client";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import type { BroadcastStatus } from "@/features/broadcasts/types";
+import { endBroadcast, getPublishConnection, startBroadcast } from "./actions";
+
+type Source = "screen" | "camera";
+type Phase = "setup" | "preview" | "live" | "ended";
+
+/**
+ * 방송자의 송출 화면.
+ * 1) 소스를 골라 미리보기(브라우저 권한 요청은 클릭 직후에 해야 하므로 방송 시작 전에 미디어를 먼저 얻는다)
+ * 2) 방송 시작: 서버가 상태를 `방송 중`으로 바꾸고 송출 토큰을 준다 → LiveKit에 트랙을 송출
+ * 3) 방송 종료: 서버가 상태를 `종료`로 바꾸고 LiveKit 방을 닫는다
+ */
+export function Studio({ broadcastId, initialStatus }: { broadcastId: string; initialStatus: BroadcastStatus }) {
+  const router = useRouter();
+  const canShareScreen = useCanShareScreen();
+  // 직접 고르기 전에는 화면 공유가 가능하면 화면 공유, 아니면 카메라
+  const [chosenSource, setSource] = useState<Source | null>(null);
+  const source = chosenSource ?? (canShareScreen ? "screen" : "camera");
+  const [phase, setPhase] = useState<Phase>(initialStatus === "ended" ? "ended" : "setup");
+  const [tracks, setTracks] = useState<LocalTrack[]>([]);
+  const [recordEnabled, setRecordEnabled] = useState(false);
+  const [micMuted, setMicMuted] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const roomRef = useRef<Room | null>(null);
+  const tracksRef = useRef<LocalTrack[]>([]);
+  tracksRef.current = tracks;
+  const previewRef = useRef<HTMLVideoElement>(null);
+
+  const videoTrack = tracks.find((t): t is LocalVideoTrack => t.kind === Track.Kind.Video);
+  const hasTabAudio = tracks.some((t) => t.source === Track.Source.ScreenShareAudio);
+  const hasMic = tracks.some((t) => t.source === Track.Source.Microphone);
+
+  useEffect(() => {
+    if (videoTrack && previewRef.current) videoTrack.attach(previewRef.current);
+    return () => {
+      videoTrack?.detach();
+    };
+  }, [videoTrack]);
+
+  // 화면을 떠나면 장치와 연결을 정리한다 (방송 상태는 LiveKit 웹훅이 종료로 바꾼다)
+  useEffect(() => {
+    return () => {
+      roomRef.current?.disconnect();
+      tracksRef.current.forEach((t) => t.stop());
+    };
+  }, []);
+
+  async function preview() {
+    setBusy(true);
+    try {
+      const media =
+        source === "screen"
+          ? [
+              // 탭·시스템 소리는 화면 공유 창의 "오디오 공유"를 켜야 들어온다 (Chrome·Edge)
+              ...(await createLocalScreenTracks({ audio: true, systemAudio: "include", selfBrowserSurface: "exclude" })),
+              await createLocalAudioTrack({ echoCancellation: true, noiseSuppression: true }),
+            ]
+          : [
+              await createLocalVideoTrack({ facingMode: "user", resolution: { width: 1280, height: 720 } }),
+              await createLocalAudioTrack({ echoCancellation: true, noiseSuppression: true }),
+            ];
+      setTracks(media);
+      setPhase("preview");
+    } catch (error) {
+      toast.error(`장치를 사용할 수 없습니다: ${(error as Error).message}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function goLive() {
+    setBusy(true);
+    try {
+      // 이미 방송 중인 방송(송출 중 새로고침 등)은 상태를 바꾸지 않고 다시 연결만 한다
+      if (initialStatus === "waiting") {
+        const started = await startBroadcast(broadcastId, recordEnabled);
+        if ("error" in started) throw new Error(started.error);
+      }
+      const connection = await getPublishConnection(broadcastId);
+      if ("error" in connection) throw new Error(connection.error);
+
+      const room = new Room();
+      room.on(RoomEvent.Disconnected, () => setPhase("ended"));
+      await room.connect(connection.serverUrl, connection.token);
+      for (const track of tracks) await room.localParticipant.publishTrack(track);
+      roomRef.current = room;
+
+      // 브라우저의 "공유 중지"를 누르면 방송도 종료한다
+      videoTrack?.on(TrackEvent.Ended, () => void stop());
+      setPhase("live");
+      router.refresh();
+    } catch (error) {
+      toast.error((error as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function stop() {
+    setBusy(true);
+    const result = await endBroadcast(broadcastId);
+    if ("error" in result) toast.error(result.error);
+    await roomRef.current?.disconnect();
+    tracks.forEach((t) => t.stop());
+    setTracks([]);
+    setPhase("ended");
+    setBusy(false);
+    router.refresh();
+  }
+
+  async function flipCamera() {
+    if (!(videoTrack instanceof LocalVideoTrack)) return;
+    const facing = videoTrack.mediaStreamTrack.getSettings().facingMode === "user" ? "environment" : "user";
+    await videoTrack.restartTrack({ facingMode: facing });
+  }
+
+  function toggleMic() {
+    const mic = tracks.find((t): t is LocalAudioTrack => t.source === Track.Source.Microphone);
+    if (!mic) return;
+    if (micMuted) mic.unmute();
+    else mic.mute();
+    setMicMuted(!micMuted);
+  }
+
+  if (phase === "ended") {
+    return (
+      <div className="space-y-4 rounded-xl border p-6 text-center">
+        <p>방송이 종료되었습니다.</p>
+        <Button onClick={() => router.push(`/broadcasts/${broadcastId}`)}>방송 페이지로</Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black">
+        {videoTrack ? (
+          <video ref={previewRef} muted playsInline className="size-full object-contain" />
+        ) : (
+          <div className="flex size-full items-center justify-center text-sm text-muted-foreground">
+            소스를 고르고 미리보기를 시작하세요
+          </div>
+        )}
+        {phase === "live" && (
+          <span className="absolute top-3 left-3 rounded-md bg-live px-2 py-1 text-xs font-bold text-white">
+            ● LIVE
+          </span>
+        )}
+      </div>
+
+      {phase === "setup" && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-2">
+            <SourceButton active={source === "screen"} disabled={!canShareScreen} onClick={() => setSource("screen")}>
+              🖥️ 화면 공유
+            </SourceButton>
+            <SourceButton active={source === "camera"} onClick={() => setSource("camera")}>
+              📷 카메라
+            </SourceButton>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {canShareScreen
+              ? "화면 공유 시 공유 창에서 '탭 오디오 공유'(또는 '시스템 오디오 공유')를 켜면 탭 소리가 마이크와 함께 송출됩니다. 소리 송출은 Chrome·Edge 데스크톱에서 지원됩니다."
+              : "모바일에서는 카메라와 마이크로 방송합니다."}
+          </p>
+          <Button size="lg" className="w-full" disabled={busy} onClick={preview}>
+            미리보기 시작
+          </Button>
+        </div>
+      )}
+
+      {phase !== "setup" && (
+        <div className="flex flex-wrap items-center gap-3 text-sm">
+          <Indicator ok={!!videoTrack} label={source === "screen" ? "화면" : "카메라"} />
+          {source === "screen" && <Indicator ok={hasTabAudio} label="탭·시스템 소리" />}
+          <Indicator ok={hasMic && !micMuted} label={micMuted ? "마이크 꺼짐" : "마이크"} />
+        </div>
+      )}
+
+      {phase === "preview" && (
+        <div className="space-y-4">
+          {source === "screen" && !hasTabAudio && (
+            <p className="text-sm text-amber-400">
+              탭 소리가 공유되지 않았습니다. 탭 소리도 보내려면 다시 미리보기를 시작해 &apos;오디오 공유&apos;를 켜세요.
+            </p>
+          )}
+          {initialStatus === "waiting" && (
+            <div className="flex items-center gap-3">
+              <Switch id="record" checked={recordEnabled} onCheckedChange={setRecordEnabled} />
+              <Label htmlFor="record">녹화하기 (최대 10분, 다시보기에 저장)</Label>
+            </div>
+          )}
+          <Button size="lg" className="w-full" disabled={busy} onClick={goLive}>
+            {initialStatus === "live" ? "송출 다시 연결" : "방송 시작"}
+          </Button>
+        </div>
+      )}
+
+      {phase !== "setup" && (
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={toggleMic}>
+            {micMuted ? "마이크 켜기" : "마이크 끄기"}
+          </Button>
+          {source === "camera" && (
+            <Button variant="outline" onClick={flipCamera}>
+              카메라 전환
+            </Button>
+          )}
+          {phase === "live" && (
+            <Button variant="destructive" disabled={busy} onClick={stop}>
+              방송 종료
+            </Button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** 화면 공유는 데스크톱 브라우저에서만 제공한다 (모바일은 카메라) */
+function useCanShareScreen() {
+  return useSyncExternalStore(
+    () => () => {},
+    () =>
+      !window.matchMedia("(pointer: coarse)").matches &&
+      typeof navigator.mediaDevices?.getDisplayMedia === "function",
+    () => false,
+  );
+}
+
+function SourceButton({ active, ...props }: { active: boolean } & React.ComponentProps<typeof Button>) {
+  return <Button variant={active ? "default" : "outline"} size="lg" {...props} />;
+}
+
+function Indicator({ ok, label }: { ok: boolean; label: string }) {
+  return (
+    <span className={ok ? "text-foreground" : "text-muted-foreground line-through"}>
+      {ok ? "✅" : "⛔"} {label}
+    </span>
+  );
+}

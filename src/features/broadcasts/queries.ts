@@ -1,0 +1,37 @@
+import "server-only";
+import { z } from "zod";
+import { createAdminClient } from "@/lib/supabase";
+import { notFound } from "@/lib/app-error";
+import type { Broadcast } from "./types";
+
+const SELECT = "id, owner_id, title, description, status, record_enabled, started_at, ended_at, created_at, owner:profiles(nickname)";
+
+export async function findBroadcast(id: string): Promise<Broadcast | null> {
+  if (!z.uuid().safeParse(id).success) return null;
+  const { data, error } = await createAdminClient()
+    .from("broadcasts")
+    .select(SELECT)
+    .eq("id", id)
+    .maybeSingle<Broadcast>();
+  if (error) throw error;
+  return data;
+}
+
+export async function getBroadcast(id: string): Promise<Broadcast> {
+  const broadcast = await findBroadcast(id);
+  if (!broadcast) throw notFound("방송");
+  return broadcast;
+}
+
+/** 메인 목록. live: 방송 중만, all: 전체(최신순) */
+export async function listBroadcasts(filter: "live" | "all"): Promise<Broadcast[]> {
+  let query = createAdminClient()
+    .from("broadcasts")
+    .select(SELECT)
+    .order("created_at", { ascending: false })
+    .limit(60);
+  if (filter === "live") query = query.eq("status", "live");
+  const { data, error } = await query.returns<Broadcast[]>();
+  if (error) throw error;
+  return data;
+}
