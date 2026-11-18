@@ -38,6 +38,20 @@ export async function listBroadcasts(filter: "live" | "all", category?: Category
   return data;
 }
 
+/** 여러 방송자의 방송(최신순). 팔로잉·마이페이지에서 쓴다. */
+export async function listBroadcastsByOwners(ownerIds: string[]): Promise<Broadcast[]> {
+  if (ownerIds.length === 0) return [];
+  const { data, error } = await createAdminClient()
+    .from("broadcasts")
+    .select(SELECT)
+    .in("owner_id", ownerIds)
+    .order("created_at", { ascending: false })
+    .limit(60)
+    .returns<Broadcast[]>();
+  if (error) throw error;
+  return data;
+}
+
 /** 편성표: 오늘(KST) 이후로 예정된 대기 중인 방송, 예정 시각순 */
 export async function listScheduled(): Promise<Broadcast[]> {
   const { data, error } = await createAdminClient()

@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 const LINKS = [
   { href: "/", label: "홈" },
   { href: "/recordings", label: "다시보기" },
+  { href: "/following", label: "팔로잉" },
   { href: "/schedule", label: "편성표" },
 ];
 

@@ -5,8 +5,6 @@ import { BroadcastCard } from "@/features/broadcasts/broadcast-card";
 import { CategoryChips } from "@/features/broadcasts/category-chips";
 import { listBroadcasts } from "@/features/broadcasts/queries";
 import { CATEGORY_LABEL, type Broadcast } from "@/features/broadcasts/types";
-import { getCurrentUser } from "@/features/auth/current-user";
-import { listFollowedIds } from "@/features/follows/queries";
 import { FeaturedCarousel, type Slide } from "@/features/home/featured-carousel";
 import { getViewerCounts } from "@/features/live/viewer-counts";
 import { Mascot } from "@/features/mascot/mascot";
@@ -14,13 +12,12 @@ import { RecordingCard } from "@/features/recordings/recording-card";
 import { formatDuration, listRecordings } from "@/features/recordings/queries";
 
 /**
- * 홈: 대표 영상 캐러셀 + 소개 → 카테고리 → (로그인 시) 팔로우한 방송자 → 방송 중 → 최근 다시보기.
+ * 홈: 대표 영상 캐러셀 + 소개 → 카테고리 → 방송 중 → 최근 다시보기.
  * 처음 온 사람이 바로 영상을 볼 수 있도록, 방송 중이 없어도 다시보기를 대표 영상으로 보여준다.
  */
 export default async function HomePage() {
-  const [live, recordings, user] = await Promise.all([listBroadcasts("live"), listRecordings(5), getCurrentUser()]);
+  const [live, recordings] = await Promise.all([listBroadcasts("live"), listRecordings(5)]);
   const viewerCounts = await getViewerCounts(live.map((b) => b.id));
-  const followedIds = user ? await listFollowedIds(user.id) : null;
 
   const slides: Slide[] = [
     ...live.slice(0, 5).map((b) => ({
@@ -48,16 +45,6 @@ export default async function HomePage() {
       </section>
 
       <CategoryChips basePath="/broadcasts" />
-
-      {followedIds && followedIds.size > 0 && (
-        <Section title="팔로우한 방송자">
-          <LiveGrid
-            broadcasts={live.filter((b) => followedIds.has(b.owner_id))}
-            viewerCounts={viewerCounts}
-            empty={<p className="py-6 text-sm text-muted-foreground">팔로우한 방송자가 지금 방송 중이 아닙니다.</p>}
-          />
-        </Section>
-      )}
 
       <Section title="방송 중" more={{ href: "/broadcasts", label: "전체 보기" }}>
         <LiveGrid broadcasts={live} viewerCounts={viewerCounts} empty={<NoLive />} />
