@@ -28,8 +28,9 @@
 ### 방송 시작과 종료 시 송출 연결을 생성하고 종료한다
 
 - 시작: 서버 액션 `startBroadcast`가 소유자·`대기` 상태를 확인하고 `방송 중`으로 바꾼 뒤, `getPublishConnection`이 송출 토큰(`canPublish: true`)을 발급해 LiveKit에 연결합니다.
+- 시작 실패: LiveKit 연결·트랙 전송이 실패하면 `cancelStart`가 상태를 `대기`로 되돌린 뒤 연결을 끊고 장치를 정리합니다. 같은 화면에서 다시 시작할 수 있습니다. 두 탭이 동시에 시작하면 상태를 먼저 바꾼 탭만 송출로 넘어가고 다른 탭은 409를 받습니다.
 - 종료: `endBroadcast` → `endLive`가 상태를 `종료`로 바꾸고 녹화를 멈춘 뒤 **LiveKit 방을 삭제해 송출·시청 연결을 끊습니다.**
-- 코드: `src/features/live/actions.ts` (`startBroadcast`, `endBroadcast`, `getPublishConnection`), `src/features/live/end-live.ts` (`endLive`), `src/features/live/token.ts` (`createLiveToken`)
+- 코드: `src/features/live/actions.ts` (`startBroadcast`, `cancelStart`, `endBroadcast`, `getPublishConnection`), `src/features/live/studio.tsx` (`goLive`), `src/features/live/end-live.ts` (`endLive`), `src/features/live/token.ts` (`createLiveToken`)
 
 ## 모바일 방송
 
@@ -63,6 +64,7 @@
 - 상태는 `waiting`(대기) → `live`(방송 중) → `ended`(종료) 순서로만 바뀌며, 각 전환은 현재 상태를 조건으로 한 업데이트라 중복 요청에도 한 번만 일어납니다. 사용자당 `방송 중`은 1개(부분 unique 인덱스 `broadcasts_one_live_per_owner`).
 - 종료 버튼 외에도 방송자가 탭을 닫거나 연결이 끊기면 **LiveKit 웹훅**(`participant_left`/`room_finished`, 서명 검증)으로 서버가 `종료` 처리합니다.
 - 송출 토큰은 `방송 중`일 때만 발급되어, 종료된 방송에는 다시 송출할 수 없습니다.
+- 확인(2026-11-19, 배포 환경, 크롬 가짜 카메라·마이크로 송출하고 비로그인 브라우저로 시청): **종료 버튼 / 브라우저 공유 중지(영상 트랙 종료) / 송출 탭 닫기** 세 경우 모두 시청 화면이 약 1.3초 만에 `방송이 종료되었습니다`로 바뀌었고, 홈의 방송 중에서 빠졌으며, 새로고침 후에도 유지되었습니다.
 - 코드: `src/features/broadcasts/policy.ts` (`assertCanStart`, `assertCanEnd`, `assertCanPublish`), `src/features/live/end-live.ts`, `src/app/api/livekit/webhook/route.ts`, `supabase/migrations/0001_init.sql`
 
 ### 방송 정보를 영구 저장하고 서버 재시작 후에도 조회한다
@@ -92,6 +94,7 @@
 - 수정·삭제·시작·종료·송출 토큰·녹화 시작/중지 서버 액션이 모두 `src/features/broadcasts/policy.ts`의 함수(`assertOwner` 등)를 거칩니다. 비로그인 401, 다른 사용자 403.
 - 브라우저는 DB에 직접 접근하지 않고 앱 서버만 서버 전용 키로 읽고 씁니다(RLS 켜고 정책 없음) — [ADR-0001](adr/0001-server-only-data-access.md)
 - 테스트: `src/features/broadcasts/policy.test.ts`
+- 확인(2026-11-19, 배포 환경): A가 만든 방송(방송 중)을 B가 시청 가능, 수정·송출 화면 주소는 방송 상세로 돌려보냄. A의 화면에서 로그인 쿠키만 B로 바꿔 서버 액션을 직접 요청하자 **수정·삭제·송출 토큰·종료 모두 `권한이 없습니다.`(403)** 로 거부. 이후 A로 다시 조회한 제목·상태(`방송 중`)가 그대로였습니다.
 
 ## 댓글 (선택)
 
