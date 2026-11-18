@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>BRDCST 방송 시청</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&amp;family=Silkscreen&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B0B0C;word-break:keep-all}
+a{color:#FF8A1F}a:hover{color:#FFB066}
+</style>
+</helmet>
+<div style="min-height: 1040px; background: #0B0B0C; color: #F2F1EE; font-family: 'Noto Sans KR', system-ui, sans-serif">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 16px clamp(16px, 4vw, 40px); border-bottom: 1px solid #26262A">
+<a href="Main.dc.html" style="display: flex; flex-direction: column; line-height: 1; text-decoration: none">
+<span style="font-family: Silkscreen, monospace; font-size: 22px; color: #FF8A1F; letter-spacing: 1px">BRDCST</span>
+<span style="font-family: Silkscreen, monospace; font-size: 10px; color: #A3A3AB; letter-spacing: 3px; margin-top: 4px">broadcast</span>
+</a>
+<div style="display: flex; gap: 8px; align-items: center">
+<span style="font-size: 14px; color: #A3A3AB">시청자B</span>
+<a href="Main.dc.html" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #3A3A40; color: #F2F1EE; text-decoration: none; font-size: 14px">로그아웃</a>
+</div>
+</header>
+
+<main style="max-width: 1440px; margin: 0 auto; padding: 24px clamp(16px, 4vw, 40px) 48px; display: flex; flex-wrap: wrap; gap: 24px">
+
+<section aria-label="플레이어" style="flex: 999 1 min(640px, 100%); min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<div style="position: relative; aspect-ratio: 16 / 9; background: #18181C; border: 1px solid #26262A; border-radius: 16px; display: flex; align-items: center; justify-content: center">
+<span style="color: #8A8A93; font-size: 15px">[실시간 방송 화면]</span>
+<span style="position: absolute; top: 16px; left: 16px; padding: 6px 10px; border-radius: 6px; background: #FF8A1F; color: #111; font-family: Silkscreen, monospace; font-size: 14px">LIVE</span>
+<div style="position: absolute; bottom: 16px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: center">
+<button type="button" aria-label="소리 켜기" style="width: 44px; height: 44px; border-radius: 8px; border: 0; background: rgba(0,0,0,0.6); color: #F2F1EE; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path></svg></button>
+<button type="button" aria-label="전체 화면" style="width: 44px; height: 44px; border-radius: 8px; border: 0; background: rgba(0,0,0,0.6); color: #F2F1EE; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"></path></svg></button>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: flex-start">
+<div style="display: flex; flex-direction: column; gap: 8px; min-width: 0">
+<h1 style="margin: 0; font-size: 24px; font-weight: 700">PC 화면 공유로 진행하는 라이브</h1>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 14px; color: #A3A3AB">
+<span style="padding: 4px 10px; border-radius: 999px; background: #1C1C20; color: #D4D4D8">토크</span>
+<span>시청 3명</span>
+<span>·</span>
+<span>시작 23:10</span>
+</div>
+</div>
+<div style="display: flex; gap: 8px">
+<button type="button" style="padding: 12px 18px; border-radius: 10px; border: 1px solid #3A3A40; background: transparent; color: #F2F1EE; font-size: 15px; font-family: inherit">팔로우</button>
+<button type="button" style="padding: 12px 18px; border-radius: 10px; border: 0; background: #FF8A1F; color: #111; font-size: 15px; font-weight: 700; font-family: inherit">후원하기</button>
+</div>
+</div>
+
+<div style="display: flex; align-items: center; gap: 12px; padding: 16px; border: 1px solid #26262A; border-radius: 12px; background: #121214">
+<span aria-hidden="true" style="width: 44px; height: 44px; border-radius: 999px; background: #2A2A30; display: flex; align-items: center; justify-content: center; font-weight: 700">A</span>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 16px; font-weight: 500">방송자A</span>
+<span style="font-size: 13px; color: #A3A3AB">PC 화면·탭 소리·마이크 송출 중</span>
+</div>
+</div>
+</section>
+
+<aside aria-label="댓글과 후원" style="flex: 1 1 min(340px, 100%); display: flex; flex-direction: column; gap: 16px">
+
+<section aria-labelledby="dn-title" style="padding: 20px; border: 1px solid #26262A; border-radius: 16px; background: #121214; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<h2 id="dn-title" style="margin: 0; font-size: 16px; font-weight: 700">후원</h2>
+<span style="font-size: 14px; color: #A3A3AB">합계 <strong style="color: #FF8A1F; font-size: 18px">6,000원</strong></span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; gap: 8px; font-size: 14px"><span>시청자B · "화이팅!"</span><span style="color: #FF8A1F">5,000원</span></div>
+<div style="display: flex; justify-content: space-between; gap: 8px; font-size: 14px"><span>시연 계정</span><span style="color: #FF8A1F">1,000원</span></div>
+</div>
+</section>
+
+<section aria-labelledby="cm-title" style="flex: 1 1 auto; min-height: 520px; padding: 20px; border: 1px solid #26262A; border-radius: 16px; background: #121214; display: flex; flex-direction: column; gap: 16px">
+<h2 id="cm-title" style="margin: 0; font-size: 16px; font-weight: 700">댓글</h2>
+<div style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 14px">
+<sc-for list="{{comments}}" as="c" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; justify-content: space-between; gap: 8px">
+<span style="font-size: 13px; font-weight: 700; color: {{c.color}}; background: {{c.bg}}; padding: {{c.pad}}">{{c.nick}}</span>
+<sc-if value="{{c.mine}}" hint-placeholder-val="{{ false }}">
+<span style="display: flex; gap: 8px; font-size: 12px"><a href="Watch.dc.html" style="color: #A3A3AB">수정</a><a href="Watch.dc.html" style="color: #A3A3AB">삭제</a></span>
+</sc-if>
+</div>
+<span style="font-size: 14px; line-height: 1.5; color: #E4E4E7">{{c.text}}</span>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; gap: 8px">
+<label for="cm-input" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">댓글 입력</label>
+<input id="cm-input" type="text" placeholder="댓글을 입력하세요" style="flex: 1 1 auto; min-width: 0; padding: 12px 14px; border-radius: 10px; border: 1px solid #3A3A40; background: #0B0B0C; color: #F2F1EE; font-size: 14px; font-family: inherit">
+<button type="button" style="padding: 12px 16px; border-radius: 10px; border: 0; background: #F2F1EE; color: #111; font-size: 14px; font-weight: 700; font-family: inherit">등록</button>
+</div>
+</section>
+
+</aside>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1040}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      comments: [
+        { nick: '시연 계정', text: '화면이랑 소리 잘 나와요', mine: false, color: '#D4D4D8', bg: 'transparent', pad: '0' },
+        { nick: '시청자B', text: '탭 소리도 들려요!', mine: true, color: '#FF8A1F', bg: 'transparent', pad: '0' },
+        { nick: '방송자A', text: '와주셔서 고마워요', mine: false, color: '#111', bg: '#FF8A1F', pad: '1px 6px' },
+        { nick: '시청자B', text: '오늘 몇 시까지 하세요?', mine: true, color: '#FF8A1F', bg: 'transparent', pad: '0' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

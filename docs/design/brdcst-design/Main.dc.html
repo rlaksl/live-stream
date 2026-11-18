@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>BRDCST 홈</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&amp;family=Silkscreen&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B0B0C;word-break:keep-all}
+a{color:#FF8A1F}a:hover{color:#FFB066}
+</style>
+</helmet>
+<div style="min-height: 1640px; background: #0B0B0C; color: #F2F1EE; font-family: 'Noto Sans KR', system-ui, sans-serif">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 16px clamp(16px, 4vw, 40px); border-bottom: 1px solid #26262A">
+<a href="Main.dc.html" style="display: flex; align-items: center; text-decoration: none; color: #F2F1EE">
+<span style="display: flex; flex-direction: column; line-height: 1">
+<span style="font-family: Silkscreen, monospace; font-size: 22px; color: #FF8A1F; letter-spacing: 1px">BRDCST</span>
+<span style="font-family: Silkscreen, monospace; font-size: 10px; color: #A3A3AB; letter-spacing: 3px; margin-top: 4px">broadcast</span>
+</span>
+</a>
+<nav aria-label="주 메뉴" style="display: flex; gap: 8px; flex-wrap: wrap">
+<a href="Main.dc.html" style="padding: 10px 16px; border-radius: 8px; background: #1C1C20; color: #F2F1EE; text-decoration: none; font-size: 15px; font-weight: 500">홈</a>
+<a href="Replays.dc.html" style="padding: 10px 16px; border-radius: 8px; color: #A3A3AB; text-decoration: none; font-size: 15px">다시보기</a>
+<a href="Main.dc.html" style="padding: 10px 16px; border-radius: 8px; color: #A3A3AB; text-decoration: none; font-size: 15px">팔로잉</a>
+<a href="Main.dc.html" style="padding: 10px 16px; border-radius: 8px; color: #A3A3AB; text-decoration: none; font-size: 15px">편성표</a>
+</nav>
+<div style="display: flex; gap: 8px; align-items: center">
+<a href="Main.dc.html" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #3A3A40; color: #F2F1EE; text-decoration: none; font-size: 15px">로그인</a>
+<a href="Studio.dc.html" style="padding: 10px 18px; border-radius: 8px; background: #FF8A1F; color: #111; text-decoration: none; font-size: 15px; font-weight: 700">방송하기</a>
+</div>
+</header>
+
+<main style="max-width: 1360px; margin: 0 auto; padding: 32px clamp(16px, 4vw, 40px) 64px; display: flex; flex-direction: column; gap: 48px">
+
+<section aria-label="대표 방송" style="display: flex; flex-wrap: wrap; gap: 32px; align-items: stretch">
+<div style="flex: 999 1 min(640px, 100%); min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<div style="position: relative">
+<a href="Watch.dc.html" style="display: block; text-decoration: none; color: #F2F1EE">
+<div style="position: relative; aspect-ratio: 16 / 9; background: #18181C; border: 1px solid #26262A; border-radius: 16px; display: flex; align-items: center; justify-content: center">
+<span style="position: absolute; top: 16px; left: 16px; padding: 6px 10px; border-radius: 6px; background: {{slide.badgeBg}}; color: {{slide.badgeFg}}; font-family: Silkscreen, monospace; font-size: 14px">{{slide.badge}}</span>
+<span style="position: absolute; top: 16px; right: 16px; padding: 6px 10px; border-radius: 6px; background: rgba(0,0,0,0.6); color: #F2F1EE; font-size: 13px">{{slide.count}}</span>
+<span style="color: #8A8A93; font-size: 15px">{{slide.source}}</span>
+<span style="position: absolute; bottom: 16px; left: 16px; padding: 10px 16px; border-radius: 8px; background: #F2F1EE; color: #111; font-size: 15px; font-weight: 700">{{slide.cta}}</span>
+</div>
+</a>
+<button type="button" aria-label="이전 방송" onClick="{{prev}}" style="position: absolute; top: 50%; left: 16px; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 999px; border: 1px solid #3A3A40; background: rgba(11,11,12,0.8); color: #F2F1EE; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
+<button type="button" aria-label="다음 방송" onClick="{{next}}" style="position: absolute; top: 50%; right: 16px; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 999px; border: 1px solid #3A3A40; background: rgba(11,11,12,0.8); color: #F2F1EE; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button>
+</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+<h2 style="margin: 0; font-size: 22px; font-weight: 700">{{slide.title}}</h2>
+<p style="margin: 0; font-size: 15px; color: #A3A3AB">{{slide.meta}}</p>
+</div>
+<div role="group" aria-label="방송 넘기기" style="display: flex; gap: 6px; align-items: center">
+<sc-for list="{{dots}}" as="d" hint-placeholder-count="5">
+<button type="button" aria-label="{{d.label}}" onClick="{{d.pick}}" style="width: {{d.w}}; height: 8px; padding: 0; border: 0; border-radius: 999px; background: {{d.bg}}; cursor: pointer"></button>
+</sc-for>
+</div>
+</div>
+</div>
+<div style="flex: 1 1 min(320px, 100%); display: flex; flex-direction: column; justify-content: center; gap: 24px; padding: 32px; border: 1px solid #26262A; border-radius: 16px; background: #121214">
+<h1 style="margin: 0; font-size: 40px; line-height: 1.2; font-weight: 700">지금 켜면,<br>바로 방송.</h1>
+<p style="margin: 0; font-size: 16px; line-height: 1.6; color: #A3A3AB">PC는 화면 공유와 탭 소리, 휴대폰은 카메라로. 설치 없이 브라우저에서 시작합니다.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<a href="Studio.dc.html" style="padding: 14px 22px; border-radius: 10px; background: #FF8A1F; color: #111; text-decoration: none; font-size: 16px; font-weight: 700">내 방송 시작</a>
+<a href="Replays.dc.html" style="padding: 14px 22px; border-radius: 10px; border: 1px solid #3A3A40; color: #F2F1EE; text-decoration: none; font-size: 16px">다시보기 재생</a>
+</div>
+<p style="margin: 0; font-size: 13px; color: #8A8A93">로그인하지 않아도 시청할 수 있어요.</p>
+</div>
+</section>
+
+<nav aria-label="카테고리" style="display: flex; flex-wrap: wrap; gap: 8px">
+<a href="Main.dc.html" style="padding: 10px 18px; border-radius: 999px; background: #F2F1EE; color: #111; text-decoration: none; font-size: 14px; font-weight: 700">전체</a>
+<a href="Main.dc.html" style="padding: 10px 18px; border-radius: 999px; background: #1C1C20; color: #D4D4D8; text-decoration: none; font-size: 14px">게임</a>
+<a href="Main.dc.html" style="padding: 10px 18px; border-radius: 999px; background: #1C1C20; color: #D4D4D8; text-decoration: none; font-size: 14px">토크</a>
+<a href="Main.dc.html" style="padding: 10px 18px; border-radius: 999px; background: #1C1C20; color: #D4D4D8; text-decoration: none; font-size: 14px">음악</a>
+<a href="Main.dc.html" style="padding: 10px 18px; border-radius: 999px; background: #1C1C20; color: #D4D4D8; text-decoration: none; font-size: 14px">공부</a>
+<a href="Main.dc.html" style="padding: 10px 18px; border-radius: 999px; background: #1C1C20; color: #D4D4D8; text-decoration: none; font-size: 14px">기타</a>
+</nav>
+
+<section aria-labelledby="live-title" style="display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px">
+<h2 id="live-title" style="margin: 0; font-size: 24px; font-weight: 700">방송 중</h2>
+<a href="Main.dc.html" style="font-size: 14px; text-decoration: none">전체 보기</a>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); gap: 24px">
+<sc-for list="{{lives}}" as="item" hint-placeholder-count="4">
+<a href="Watch.dc.html" style="display: flex; flex-direction: column; gap: 12px; text-decoration: none; color: #F2F1EE">
+<div style="position: relative; aspect-ratio: 16 / 9; background: #18181C; border: 1px solid #26262A; border-radius: 12px; display: flex; align-items: center; justify-content: center">
+<span style="position: absolute; top: 10px; left: 10px; padding: 4px 8px; border-radius: 4px; background: #FF8A1F; color: #111; font-family: Silkscreen, monospace; font-size: 12px">LIVE</span>
+<span style="position: absolute; bottom: 10px; right: 10px; padding: 4px 8px; border-radius: 4px; background: rgba(0,0,0,0.6); font-size: 12px">시청 {{item.viewers}}</span>
+<span style="color: #8A8A93; font-size: 13px">{{item.source}}</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 16px; font-weight: 500">{{item.title}}</span>
+<span style="font-size: 14px; color: #A3A3AB">{{item.nick}} · {{item.cat}}</span>
+</div>
+</a>
+</sc-for>
+</div>
+</section>
+
+<section aria-labelledby="replay-title" style="display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px">
+<h2 id="replay-title" style="margin: 0; font-size: 24px; font-weight: 700">최근 다시보기</h2>
+<a href="Replays.dc.html" style="font-size: 14px; text-decoration: none">다시보기 전체</a>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(420px, 100%), 1fr)); gap: 24px">
+<a href="Replays.dc.html" style="display: flex; flex-direction: column; gap: 12px; text-decoration: none; color: #F2F1EE">
+<div style="position: relative; aspect-ratio: 16 / 9; background: #18181C; border: 1px solid #26262A; border-radius: 12px; display: flex; align-items: center; justify-content: center">
+<span style="color: #8A8A93; font-size: 14px">[녹화 첫 프레임]</span>
+<span style="position: absolute; bottom: 10px; right: 10px; padding: 4px 8px; border-radius: 4px; background: rgba(0,0,0,0.6); font-size: 12px">[재생 시간]</span>
+</div>
+<span style="font-size: 18px; font-weight: 500">PC 화면·소리·마이크 송출</span>
+<span style="font-size: 14px; color: #A3A3AB">시연 계정 · 다시보기</span>
+</a>
+<a href="Replays.dc.html" style="display: flex; flex-direction: column; gap: 12px; text-decoration: none; color: #F2F1EE">
+<div style="position: relative; aspect-ratio: 16 / 9; background: #18181C; border: 1px solid #26262A; border-radius: 12px; display: flex; align-items: center; justify-content: center">
+<span style="color: #8A8A93; font-size: 14px">[녹화 첫 프레임]</span>
+<span style="position: absolute; bottom: 10px; right: 10px; padding: 4px 8px; border-radius: 4px; background: rgba(0,0,0,0.6); font-size: 12px">[재생 시간]</span>
+</div>
+<span style="font-size: 18px; font-weight: 500">휴대폰 카메라·마이크 송출</span>
+<span style="font-size: 14px; color: #A3A3AB">시연 계정 · 다시보기</span>
+</a>
+</div>
+</section>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1640}}'>
+class Component extends DCLogic {
+  state = { i: 0 };
+  renderVals() {
+    const slides = [
+      { badge: 'LIVE', badgeBg: '#FF8A1F', badgeFg: '#111', count: '시청 3', source: '[PC 화면 공유]', cta: 'LIVE · 시청하기', title: 'PC 화면 공유로 진행하는 라이브', meta: '방송자A · 토크' },
+      { badge: 'LIVE', badgeBg: '#FF8A1F', badgeFg: '#111', count: '시청 2', source: '[휴대폰 카메라]', cta: 'LIVE · 시청하기', title: '기타 연습 라이브', meta: '시연 계정 · 음악' },
+      { badge: 'LIVE', badgeBg: '#FF8A1F', badgeFg: '#111', count: '시청 1', source: '[휴대폰 카메라]', cta: 'LIVE · 시청하기', title: '산책하며 수다', meta: '시청자B · 토크' },
+      { badge: 'REPLAY', badgeBg: '#F2F1EE', badgeFg: '#111', count: '[재생 시간]', source: '[녹화 첫 프레임]', cta: '다시보기 재생', title: 'PC 화면·소리·마이크 송출', meta: '시연 계정 · 다시보기' },
+      { badge: 'REPLAY', badgeBg: '#F2F1EE', badgeFg: '#111', count: '[재생 시간]', source: '[녹화 첫 프레임]', cta: '다시보기 재생', title: '휴대폰 카메라·마이크 송출', meta: '시연 계정 · 다시보기' }
+    ];
+    const n = slides.length;
+    const i = this.state.i;
+    const go = (k) => this.setState({ i: (k + n) % n });
+    return {
+      slide: slides[i],
+      prev: () => go(i - 1),
+      next: () => go(i + 1),
+      dots: slides.map((s, k) => ({ label: (k + 1) + '번째 방송: ' + s.title, pick: () => go(k), w: k === i ? '24px' : '8px', bg: k === i ? '#FF8A1F' : '#3A3A40' })),
+      lives: [
+        { title: '저녁 게임 같이 해요', nick: '방송자A', cat: '게임', viewers: 3, source: '[PC 화면 공유]' },
+        { title: '산책하며 수다', nick: '시청자B', cat: '토크', viewers: 1, source: '[휴대폰 카메라]' },
+        { title: '기타 연습 라이브', nick: '시연 계정', cat: '음악', viewers: 2, source: '[휴대폰 카메라]' },
+        { title: '같이 공부해요', nick: '방송자A', cat: '공부', viewers: 1, source: '[PC 화면 공유]' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>BRDCST 다시보기</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&amp;family=Silkscreen&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B0B0C;word-break:keep-all}
+a{color:#FF8A1F}a:hover{color:#FFB066}
+</style>
+</helmet>
+<div style="min-height: 1000px; background: #0B0B0C; color: #F2F1EE; font-family: 'Noto Sans KR', system-ui, sans-serif">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 16px clamp(16px, 4vw, 40px); border-bottom: 1px solid #26262A">
+<a href="Main.dc.html" style="display: flex; flex-direction: column; line-height: 1; text-decoration: none">
+<span style="font-family: Silkscreen, monospace; font-size: 22px; color: #FF8A1F; letter-spacing: 1px">BRDCST</span>
+<span style="font-family: Silkscreen, monospace; font-size: 10px; color: #A3A3AB; letter-spacing: 3px; margin-top: 4px">broadcast</span>
+</a>
+<nav aria-label="주 메뉴" style="display: flex; gap: 8px; flex-wrap: wrap">
+<a href="Main.dc.html" style="padding: 10px 16px; border-radius: 8px; color: #A3A3AB; text-decoration: none; font-size: 15px">홈</a>
+<a href="Replays.dc.html" style="padding: 10px 16px; border-radius: 8px; background: #1C1C20; color: #F2F1EE; text-decoration: none; font-size: 15px; font-weight: 500">다시보기</a>
+</nav>
+<a href="Studio.dc.html" style="padding: 10px 18px; border-radius: 8px; background: #FF8A1F; color: #111; text-decoration: none; font-size: 15px; font-weight: 700">방송하기</a>
+</header>
+
+<main style="max-width: 1360px; margin: 0 auto; padding: 32px clamp(16px, 4vw, 40px) 64px; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h1 style="margin: 0; font-size: 28px; font-weight: 700">다시보기</h1>
+<p style="margin: 0; font-size: 15px; color: #A3A3AB">녹화를 켜고 진행한 방송이 끝나면 여기에 올라와요.</p>
+</div>
+<nav aria-label="카테고리" style="display: flex; flex-wrap: wrap; gap: 8px">
+<a href="Replays.dc.html" style="padding: 10px 18px; border-radius: 999px; background: #F2F1EE; color: #111; text-decoration: none; font-size: 14px; font-weight: 700">전체</a>
+<a href="Replays.dc.html" style="padding: 10px 18px; border-radius: 999px; background: #1C1C20; color: #D4D4D8; text-decoration: none; font-size: 14px">게임</a>
+<a href="Replays.dc.html" style="padding: 10px 18px; border-radius: 999px; background: #1C1C20; color: #D4D4D8; text-decoration: none; font-size: 14px">토크</a>
+<a href="Replays.dc.html" style="padding: 10px 18px; border-radius: 999px; background: #1C1C20; color: #D4D4D8; text-decoration: none; font-size: 14px">음악</a>
+<a href="Replays.dc.html" style="padding: 10px 18px; border-radius: 999px; background: #1C1C20; color: #D4D4D8; text-decoration: none; font-size: 14px">공부</a>
+</nav>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 24px">
+<sc-for list="{{items}}" as="item" hint-placeholder-count="6">
+<a href="Watch.dc.html" style="display: flex; flex-direction: column; gap: 10px; text-decoration: none; color: #F2F1EE">
+<div style="position: relative; aspect-ratio: 16 / 9; background: #18181C; border: 1px solid #26262A; border-radius: 12px; display: flex; align-items: center; justify-content: center">
+<span style="color: #8A8A93; font-size: 13px">[녹화 첫 프레임]</span>
+<span style="position: absolute; top: 10px; left: 10px; padding: 4px 8px; border-radius: 4px; background: rgba(0,0,0,0.6); font-size: 12px">{{item.source}}</span>
+<span style="position: absolute; bottom: 10px; right: 10px; padding: 4px 8px; border-radius: 4px; background: rgba(0,0,0,0.6); font-size: 12px">{{item.len}}</span>
+</div>
+<span style="font-size: 16px; font-weight: 500">{{item.title}}</span>
+<span style="font-size: 14px; color: #A3A3AB">{{item.nick}} · {{item.cat}} · {{item.date}}</span>
+</a>
+</sc-for>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      items: [
+        { title: 'PC 화면·소리·마이크 송출', nick: '시연 계정', cat: '토크', date: '11월 19일', len: '[재생 시간]', source: 'PC' },
+        { title: '휴대폰 카메라·마이크 송출', nick: '시연 계정', cat: '토크', date: '11월 19일', len: '[재생 시간]', source: '모바일' },
+        { title: '[방송 제목]', nick: '[닉네임]', cat: '게임', date: '[날짜]', len: '[재생 시간]', source: 'PC' },
+        { title: '[방송 제목]', nick: '[닉네임]', cat: '음악', date: '[날짜]', len: '[재생 시간]', source: '모바일' },
+        { title: '[방송 제목]', nick: '[닉네임]', cat: '공부', date: '[날짜]', len: '[재생 시간]', source: 'PC' },
+        { title: '[방송 제목]', nick: '[닉네임]', cat: '기타', date: '[날짜]', len: '[재생 시간]', source: '모바일' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

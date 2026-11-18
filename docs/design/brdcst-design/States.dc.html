@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>BRDCST 빈 상태와 종료 상태</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&amp;family=Silkscreen&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B0B0C;word-break:keep-all}
+a{color:#FF8A1F}a:hover{color:#FFB066}
+</style>
+</helmet>
+<div style="width: 1440px; height: 640px; box-sizing: border-box; padding: 48px; background: #0B0B0C; color: #F2F1EE; font-family: 'Noto Sans KR', system-ui, sans-serif; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px">
+
+<section aria-labelledby="s1" style="border: 1px solid #26262A; border-radius: 16px; background: #121214; padding: 40px 32px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; text-align: center">
+<span style="font-family: Silkscreen, monospace; font-size: 12px; color: #A3A3AB; letter-spacing: 2px">대기 중</span>
+<svg viewBox="0 0 24 21" width="168" height="147" shape-rendering="crispEdges" aria-hidden="true"><rect x="6" y="0" width="1" height="1" fill="#C9CCD1"/><rect x="7" y="1" width="1" height="1" fill="#C9CCD1"/><rect x="8" y="2" width="1" height="1" fill="#C9CCD1"/><rect x="9" y="3" width="1" height="1" fill="#C9CCD1"/><rect x="10" y="4" width="1" height="1" fill="#C9CCD1"/><rect x="17" y="0" width="1" height="1" fill="#C9CCD1"/><rect x="16" y="1" width="1" height="1" fill="#C9CCD1"/><rect x="15" y="2" width="1" height="1" fill="#C9CCD1"/><rect x="14" y="3" width="1" height="1" fill="#C9CCD1"/><rect x="13" y="4" width="1" height="1" fill="#C9CCD1"/><rect x="0" y="5" width="24" height="15" fill="#111"/><rect x="1" y="6" width="22" height="13" fill="#EDE6D6"/><rect x="2" y="7" width="15" height="11" fill="#111"/><rect x="3" y="8" width="13" height="9" fill="#232328"/><rect x="4" y="9" width="1" height="1" fill="#3A3A42"/><rect x="14" y="9" width="1" height="1" fill="#3A3A42"/><rect x="5" y="11" width="3" height="1" fill="#FF8A1F"/><rect x="11" y="11" width="3" height="1" fill="#FF8A1F"/><rect x="8" y="15" width="3" height="1" fill="#FF8A1F"/><rect x="19" y="8" width="2" height="2" fill="#8A8478"/><rect x="19" y="12" width="2" height="2" fill="#8A8478"/><rect x="3" y="20" width="2" height="1" fill="#111"/><rect x="19" y="20" width="2" height="1" fill="#111"/></svg>
+<h2 id="s1" style="margin: 0; font-size: 22px; font-weight: 700">곧 시작합니다</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #A3A3AB">방송자가 아직 송출을 시작하지 않았어요.<br>예정 11월 20일 20:00</p>
+<button type="button" style="padding: 12px 20px; border-radius: 10px; border: 1px solid #3A3A40; background: transparent; color: #F2F1EE; font-size: 15px; font-family: inherit">팔로우하고 알림 받기</button>
+</section>
+
+<section aria-labelledby="s2" style="border: 1px solid #26262A; border-radius: 16px; background: #121214; padding: 40px 32px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; text-align: center">
+<span style="font-family: Silkscreen, monospace; font-size: 12px; color: #A3A3AB; letter-spacing: 2px">NO SIGNAL</span>
+<svg viewBox="0 0 24 21" width="168" height="147" shape-rendering="crispEdges" aria-hidden="true"><rect x="6" y="0" width="1" height="1" fill="#C9CCD1"/><rect x="7" y="1" width="1" height="1" fill="#C9CCD1"/><rect x="8" y="2" width="1" height="1" fill="#C9CCD1"/><rect x="9" y="3" width="1" height="1" fill="#C9CCD1"/><rect x="10" y="4" width="1" height="1" fill="#C9CCD1"/><rect x="17" y="0" width="1" height="1" fill="#C9CCD1"/><rect x="16" y="1" width="1" height="1" fill="#C9CCD1"/><rect x="15" y="2" width="1" height="1" fill="#C9CCD1"/><rect x="14" y="3" width="1" height="1" fill="#C9CCD1"/><rect x="13" y="4" width="1" height="1" fill="#C9CCD1"/><rect x="0" y="5" width="24" height="15" fill="#111"/><rect x="1" y="6" width="22" height="13" fill="#EDE6D6"/><rect x="2" y="7" width="15" height="11" fill="#111"/><rect x="3" y="8" width="13" height="9" fill="#232328"/><rect x="3" y="9" width="13" height="1" fill="#E040A0" opacity="0.5"/><rect x="3" y="13" width="13" height="1" fill="#30C8E0" opacity="0.4"/><rect x="5" y="10" width="1" height="1" fill="#FF8A1F"/><rect x="7" y="10" width="1" height="1" fill="#FF8A1F"/><rect x="6" y="11" width="1" height="1" fill="#FF8A1F"/><rect x="5" y="12" width="1" height="1" fill="#FF8A1F"/><rect x="7" y="12" width="1" height="1" fill="#FF8A1F"/><rect x="11" y="10" width="1" height="1" fill="#FF8A1F"/><rect x="13" y="10" width="1" height="1" fill="#FF8A1F"/><rect x="12" y="11" width="1" height="1" fill="#FF8A1F"/><rect x="11" y="12" width="1" height="1" fill="#FF8A1F"/><rect x="13" y="12" width="1" height="1" fill="#FF8A1F"/><rect x="7" y="15" width="1" height="1" fill="#FF8A1F"/><rect x="8" y="14" width="1" height="1" fill="#FF8A1F"/><rect x="9" y="15" width="1" height="1" fill="#FF8A1F"/><rect x="10" y="14" width="1" height="1" fill="#FF8A1F"/><rect x="11" y="15" width="1" height="1" fill="#FF8A1F"/><rect x="19" y="8" width="2" height="2" fill="#8A8478"/><rect x="19" y="12" width="2" height="2" fill="#8A8478"/><rect x="3" y="20" width="2" height="1" fill="#111"/><rect x="19" y="20" width="2" height="1" fill="#111"/></svg>
+<h2 id="s2" style="margin: 0; font-size: 22px; font-weight: 700">방송이 종료되었습니다</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #A3A3AB">녹화된 방송은 다시보기에서 볼 수 있어요.</p>
+<a href="Replays.dc.html" style="padding: 12px 20px; border-radius: 10px; background: #FF8A1F; color: #111; text-decoration: none; font-size: 15px; font-weight: 700">다시보기 재생</a>
+</section>
+
+<section aria-labelledby="s3" style="border: 1px solid #26262A; border-radius: 16px; background: #121214; padding: 40px 32px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; text-align: center">
+<span style="font-family: Silkscreen, monospace; font-size: 12px; color: #A3A3AB; letter-spacing: 2px">방송 없음</span>
+<svg viewBox="0 0 24 21" width="168" height="147" shape-rendering="crispEdges" aria-hidden="true"><rect x="6" y="0" width="1" height="1" fill="#C9CCD1"/><rect x="7" y="1" width="1" height="1" fill="#C9CCD1"/><rect x="8" y="2" width="1" height="1" fill="#C9CCD1"/><rect x="9" y="3" width="1" height="1" fill="#C9CCD1"/><rect x="10" y="4" width="1" height="1" fill="#C9CCD1"/><rect x="17" y="0" width="1" height="1" fill="#C9CCD1"/><rect x="16" y="1" width="1" height="1" fill="#C9CCD1"/><rect x="15" y="2" width="1" height="1" fill="#C9CCD1"/><rect x="14" y="3" width="1" height="1" fill="#C9CCD1"/><rect x="13" y="4" width="1" height="1" fill="#C9CCD1"/><rect x="0" y="5" width="24" height="15" fill="#111"/><rect x="1" y="6" width="22" height="13" fill="#EDE6D6"/><rect x="2" y="7" width="15" height="11" fill="#111"/><rect x="3" y="8" width="13" height="9" fill="#232328"/><rect x="4" y="9" width="1" height="1" fill="#3A3A42"/><rect x="9" y="16" width="1" height="1" fill="#3A3A42"/><rect x="5" y="9" width="2" height="1" fill="#FF8A1F"/><rect x="4" y="10" width="1" height="2" fill="#FF8A1F"/><rect x="7" y="10" width="1" height="2" fill="#FF8A1F"/><rect x="5" y="12" width="2" height="1" fill="#FF8A1F"/><rect x="12" y="9" width="2" height="1" fill="#FF8A1F"/><rect x="11" y="10" width="1" height="2" fill="#FF8A1F"/><rect x="14" y="10" width="1" height="2" fill="#FF8A1F"/><rect x="12" y="12" width="2" height="1" fill="#FF8A1F"/><rect x="9" y="14" width="1" height="1" fill="#FF8A1F"/><rect x="8" y="15" width="1" height="1" fill="#FF8A1F"/><rect x="10" y="15" width="1" height="1" fill="#FF8A1F"/><rect x="9" y="16" width="1" height="1" fill="#FF8A1F"/><rect x="19" y="8" width="2" height="2" fill="#8A8478"/><rect x="19" y="12" width="2" height="2" fill="#8A8478"/><rect x="3" y="20" width="2" height="1" fill="#111"/><rect x="19" y="20" width="2" height="1" fill="#111"/></svg>
+<h2 id="s3" style="margin: 0; font-size: 22px; font-weight: 700">지금 방송 중인 방송이 없어요</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #A3A3AB">첫 번째로 켜 보세요. 아래에서 다시보기도 볼 수 있어요.</p>
+<a href="Studio.dc.html" style="padding: 12px 20px; border-radius: 10px; background: #FF8A1F; color: #111; text-decoration: none; font-size: 15px; font-weight: 700">내 방송 시작</a>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":640}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

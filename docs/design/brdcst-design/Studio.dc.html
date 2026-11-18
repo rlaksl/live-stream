@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>BRDCST 방송하기</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&amp;family=Silkscreen&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B0B0C;word-break:keep-all}
+a{color:#FF8A1F}a:hover{color:#FFB066}
+</style>
+</helmet>
+<div style="min-height: 1040px; background: #0B0B0C; color: #F2F1EE; font-family: 'Noto Sans KR', system-ui, sans-serif">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 16px clamp(16px, 4vw, 40px); border-bottom: 1px solid #26262A">
+<a href="Main.dc.html" style="display: flex; flex-direction: column; line-height: 1; text-decoration: none">
+<span style="font-family: Silkscreen, monospace; font-size: 22px; color: #FF8A1F; letter-spacing: 1px">BRDCST</span>
+<span style="font-family: Silkscreen, monospace; font-size: 10px; color: #A3A3AB; letter-spacing: 3px; margin-top: 4px">broadcast</span>
+</a>
+<span style="font-size: 14px; color: #A3A3AB">방송자A</span>
+</header>
+
+<main style="max-width: 1360px; margin: 0 auto; padding: 32px clamp(16px, 4vw, 40px) 48px; display: flex; flex-direction: column; gap: 24px">
+<h1 style="margin: 0; font-size: 28px; font-weight: 700">방송하기</h1>
+
+<div style="display: flex; flex-wrap: wrap; gap: 24px">
+
+<section aria-label="송출 미리보기" style="flex: 999 1 min(640px, 100%); min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<button type="button" aria-pressed="true" style="flex: 1 1 150px; padding: 16px; border-radius: 4px; border: 2px solid #FF8A1F; background: #121214; color: #F2F1EE; text-align: left; font-family: inherit; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 16px; font-weight: 700">화면 공유</span>
+<span style="font-size: 13px; color: #A3A3AB">PC · 화면과 탭/시스템 소리</span>
+</button>
+<button type="button" aria-pressed="false" style="flex: 1 1 150px; padding: 16px; border-radius: 4px; border: 1px solid #3A3A40; background: #121214; color: #F2F1EE; text-align: left; font-family: inherit; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 16px; font-weight: 700">카메라</span>
+<span style="font-size: 13px; color: #A3A3AB">휴대폰 · 전면/후면 전환</span>
+</button>
+</div>
+<div style="position: relative; aspect-ratio: 16 / 9; background: #18181C; border: 1px solid #26262A; border-radius: 4px; display: flex; align-items: center; justify-content: center">
+<span style="color: #8A8A93; font-size: 15px">[송출 미리보기]</span>
+<span style="position: absolute; top: 16px; left: 16px; padding: 6px 10px; border-radius: 4px; background: #2A2A30; color: #D4D4D8; font-size: 13px">미리보기 · 아직 송출 전</span>
+</div>
+<div role="list" aria-label="장치 상태" style="display: flex; flex-wrap: wrap; gap: 12px">
+<div role="listitem" style="flex: 1 1 140px; padding: 14px; border-radius: 4px; border: 1px solid #26262A; background: #121214; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 13px; color: #A3A3AB">화면</span>
+<span style="display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 400; color: #F2F1EE"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="0.75" y="0.75" width="14.5" height="14.5" rx="2" fill="#F2F1EE" stroke="#F2F1EE" stroke-width="1.5"></rect><path d="M4.5 8.2l2.3 2.3 4.7-5" fill="none" stroke="#111" stroke-width="2"></path></svg>연결됨</span>
+</div>
+<div role="listitem" style="flex: 1 1 140px; padding: 14px; border-radius: 4px; border: 1px solid #26262A; background: #121214; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 13px; color: #A3A3AB">마이크</span>
+<span style="display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 400; color: #F2F1EE"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="0.75" y="0.75" width="14.5" height="14.5" rx="2" fill="#F2F1EE" stroke="#F2F1EE" stroke-width="1.5"></rect><path d="M4.5 8.2l2.3 2.3 4.7-5" fill="none" stroke="#111" stroke-width="2"></path></svg>소리 감지됨</span>
+</div>
+<div role="listitem" style="flex: 1 1 140px; padding: 14px; border-radius: 4px; border: 1px solid #FF8A1F; background: #121214; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 13px; color: #A3A3AB">공유 소리</span>
+<span style="display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 400; color: #FF8A1F"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="0.75" y="0.75" width="14.5" height="14.5" rx="2" fill="none" stroke="#FF8A1F" stroke-width="1.5"></rect></svg>감지 안 됨</span>
+</div>
+</div>
+<p style="margin: 0; padding: 4px 0; font-size: 14px; line-height: 1.9"><span style="background: #FF8A1F; color: #111; padding: 2px 6px; -webkit-box-decoration-break: clone; box-decoration-break: clone">공유 창에서 '탭 오디오 공유'를 켜 주세요</span></p>
+</section>
+
+<section aria-labelledby="info-title" style="flex: 1 1 min(340px, 100%); padding: 24px; border: 1px solid #26262A; border-radius: 4px; background: #121214; display: flex; flex-direction: column; gap: 18px">
+<h2 id="info-title" style="margin: 0; font-size: 18px; font-weight: 700">방송 정보</h2>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="f-title" style="font-size: 14px; color: #D4D4D8">제목</label>
+<input id="f-title" type="text" value="PC 화면 공유로 진행하는 라이브" style="padding: 12px 14px; border-radius: 4px; border: 1px solid #3A3A40; background: #0B0B0C; color: #F2F1EE; font-size: 15px; font-family: inherit">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="f-cat" style="font-size: 14px; color: #D4D4D8">카테고리</label>
+<select id="f-cat" style="padding: 12px 14px; border-radius: 4px; border: 1px solid #3A3A40; background: #0B0B0C; color: #F2F1EE; font-size: 15px; font-family: inherit"><option>토크</option><option>게임</option><option>음악</option><option>공부</option><option>기타</option></select>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="f-when" style="font-size: 14px; color: #D4D4D8">예정 시간 (선택, 편성표에 표시)</label>
+<input id="f-when" type="text" placeholder="예: 11월 20일 20:00" style="padding: 12px 14px; border-radius: 4px; border: 1px solid #3A3A40; background: #0B0B0C; color: #F2F1EE; font-size: 15px; font-family: inherit">
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px; border-radius: 4px; background: #0B0B0C">
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 500">녹화하기</span><span style="font-size: 12px; color: #A3A3AB">최대 10분 · 끝나면 다시보기에 올라가요</span></span>
+<button type="button" role="switch" aria-checked="true" aria-label="녹화하기" style="width: 52px; height: 30px; border-radius: 999px; border: 0; background: #FF8A1F; position: relative"><span style="position: absolute; top: 3px; right: 3px; width: 24px; height: 24px; border-radius: 999px; background: #111"></span></button>
+</div>
+<button type="button" style="margin-top: auto; padding: 16px; border-radius: 4px; border: 0; background: #FF8A1F; color: #111; font-size: 17px; font-weight: 700; font-family: inherit">방송 시작</button>
+<p style="margin: 0; font-size: 12px; color: #8A8A93; text-align: center">연결과 송출이 확인된 뒤에 LIVE로 바뀝니다.</p>
+</section>
+
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1040}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
