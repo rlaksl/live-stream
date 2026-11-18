@@ -13,8 +13,8 @@ export default async function EditBroadcastPage({ params }: PageProps<"/broadcas
   if (user.id !== broadcast.owner_id) redirect(`/broadcasts/${id}`);
 
   return (
-    <div className="mx-auto max-w-xl space-y-6">
-      <h1 className="text-2xl font-bold">방송 정보 수정</h1>
+    <div className="mx-auto flex max-w-xl flex-col gap-6">
+      <h1 className="text-[28px] font-bold">방송 정보 수정</h1>
       <BroadcastForm
         action={updateBroadcast.bind(null, id)}
         defaultValues={broadcast}

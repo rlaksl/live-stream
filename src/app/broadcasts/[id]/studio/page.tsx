@@ -14,15 +14,15 @@ export default async function StudioPage({ params }: PageProps<"/broadcasts/[id]
   if (user.id !== broadcast.owner_id) redirect(`/broadcasts/${id}`);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center gap-3">
+        <h1 className="text-[28px] font-bold">방송하기</h1>
         <StatusBadge status={broadcast.status} />
-        <h1 className="text-xl font-bold">{broadcast.title}</h1>
-        <Link href={`/broadcasts/${id}`} className="ml-auto text-sm text-primary underline">
+        <Link href={`/broadcasts/${id}`} className="ml-auto text-sm text-primary">
           시청 화면 보기
         </Link>
       </div>
-      <Studio broadcastId={id} initialStatus={broadcast.status} />
+      <Studio broadcastId={id} initialStatus={broadcast.status} info={broadcast} />
     </div>
   );
 }
