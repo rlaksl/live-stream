@@ -6,10 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { BroadcastFormState } from "./actions";
+import { CATEGORIES, CATEGORY_LABEL, type Category } from "./types";
 
 type Props = {
   action: (state: BroadcastFormState, formData: FormData) => Promise<BroadcastFormState>;
-  defaultValues?: { title: string; description: string };
+  defaultValues?: { title: string; description: string; category: Category };
   submitLabel: string;
 };
 
@@ -21,6 +22,21 @@ export function BroadcastForm({ action, defaultValues, submitLabel }: Props) {
       <div className="space-y-1.5">
         <Label htmlFor="title">제목</Label>
         <Input id="title" name="title" required maxLength={100} defaultValue={defaultValues?.title} />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="category">카테고리</Label>
+        <select
+          id="category"
+          name="category"
+          defaultValue={defaultValues?.category ?? "talk"}
+          className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30"
+        >
+          {CATEGORIES.map((c) => (
+            <option key={c} value={c} className="bg-background">
+              {CATEGORY_LABEL[c]}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="description">설명 (선택)</Label>

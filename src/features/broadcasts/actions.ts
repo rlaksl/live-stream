@@ -9,12 +9,14 @@ import { endLive } from "@/features/live/end-live";
 import { deleteRecordingFiles } from "@/features/recordings/egress";
 import { assertOwner } from "./policy";
 import { getBroadcast } from "./queries";
+import { CATEGORIES } from "./types";
 
 export type BroadcastFormState = { error: string } | undefined;
 
 const broadcastSchema = z.object({
   title: z.string().trim().min(1, "제목을 입력하세요.").max(100, "제목은 100자 이하입니다."),
   description: z.string().trim().max(1000, "설명은 1000자 이하입니다."),
+  category: z.enum(CATEGORIES, "카테고리를 고르세요."),
 });
 
 export async function createBroadcast(

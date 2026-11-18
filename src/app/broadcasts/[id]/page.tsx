@@ -6,6 +6,7 @@ import { DeleteBroadcastButton } from "@/features/broadcasts/delete-button";
 import { OffAirScreen } from "@/features/broadcasts/off-air-screen";
 import { findBroadcast } from "@/features/broadcasts/queries";
 import { StatusBadge } from "@/features/broadcasts/status-badge";
+import { CATEGORY_LABEL } from "@/features/broadcasts/types";
 import { CommentPanel } from "@/features/comments/comment-panel";
 import { listComments } from "@/features/comments/queries";
 import { DonationPanel } from "@/features/donations/donation-panel";
@@ -37,7 +38,12 @@ export default async function BroadcastPage({ params }: PageProps<"/broadcasts/[
             <StatusBadge status={broadcast.status} />
             <h1 className="text-xl font-bold break-all">{broadcast.title}</h1>
           </div>
-          <p className="text-sm text-muted-foreground">{broadcast.owner.nickname}</p>
+          <p className="text-sm text-muted-foreground">
+            {broadcast.owner.nickname} ·{" "}
+            <Link href={`/broadcasts?category=${broadcast.category}`} className="hover:text-primary">
+              {CATEGORY_LABEL[broadcast.category]}
+            </Link>
+          </p>
           {recording && <RecordingNotice id={recording.id} status={recording.status} />}
           {broadcast.description && (
             <p className="text-sm whitespace-pre-wrap">{broadcast.description}</p>

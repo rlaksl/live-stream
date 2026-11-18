@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Mascot } from "@/features/mascot/mascot";
 import { StatusBadge } from "./status-badge";
-import type { Broadcast } from "./types";
+import { CATEGORY_LABEL, type Broadcast } from "./types";
 
 export function BroadcastCard({ broadcast, viewers }: { broadcast: Broadcast; viewers?: number }) {
   const face = broadcast.status === "live" ? "happy" : broadcast.status === "waiting" ? "sleepy" : "dead";
@@ -22,7 +22,9 @@ export function BroadcastCard({ broadcast, viewers }: { broadcast: Broadcast; vi
       </div>
       <div className="space-y-1 p-3">
         <p className="truncate font-medium group-hover:text-primary">{broadcast.title}</p>
-        <p className="text-xs text-muted-foreground">{broadcast.owner.nickname}</p>
+        <p className="text-xs text-muted-foreground">
+          {broadcast.owner.nickname} · {CATEGORY_LABEL[broadcast.category]}
+        </p>
       </div>
     </Link>
   );

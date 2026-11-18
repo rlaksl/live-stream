@@ -55,7 +55,7 @@
 
 ### 방송 목록과 상세 화면, PC·모바일에서 송출한 방송을 각각 다른 기기에서 수신·재생
 
-- 홈: 대표 영상(방송 중이 있으면 LIVE, 없으면 최근 녹화) + 내 방송 시작 → 방송 중(시청자 수) → 최근 다시보기(실제 녹화 프레임 썸네일) — `src/app/page.tsx`. 전체 방송(최신순) `src/app/broadcasts/page.tsx`, 시청자 수 `src/features/live/viewer-counts.ts`
+- 홈: 대표 영상(방송 중이 있으면 LIVE, 없으면 최근 녹화) + 내 방송 시작 → 방송 중(시청자 수) → 최근 다시보기(실제 녹화 프레임 썸네일) — `src/app/page.tsx`. 전체 방송(최신순, 카테고리 필터) `src/app/broadcasts/page.tsx`, 카테고리 목록 `src/features/broadcasts/types.ts`(DB check 제약 `supabase/migrations/0004_broadcast_category.sql`), 시청자 수 `src/features/live/viewer-counts.ts`
 - 상세: 상태별 화면(대기·방송 중·종료) — `src/app/broadcasts/[id]/page.tsx`
 - 시청: 로그인 없이 구독 전용 토큰(`getViewerConnection`)으로 재생 — `src/features/live/live-player.tsx`
 
