@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { getCurrentUser } from "@/features/auth/current-user";
 import { signOut } from "@/features/auth/actions";
 
@@ -9,9 +10,17 @@ export async function SiteHeader() {
   return (
     <header className="border-b border-border">
       <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-3 px-4">
-        <Link href="/" className="flex items-center gap-2" aria-label="BRDCST 홈">
+        <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="BRDCST 홈">
+          {/* 좁은 휴대폰 화면에서는 메뉴 자리를 위해 그림을 숨기고 글자 로고만 둔다 */}
           {/* eslint-disable-next-line @next/next/no-img-element -- 코드로 만든 작은 SVG라 최적화가 필요 없다 */}
-          <img src="/mascot/happy.svg" alt="" width={36} height={31} style={{ imageRendering: "pixelated" }} />
+          <img
+            src="/mascot/happy.svg"
+            alt=""
+            width={36}
+            height={31}
+            className="hidden min-[400px]:block"
+            style={{ imageRendering: "pixelated" }}
+          />
           <span className="flex flex-col leading-none">
             <span className="font-pixel text-xl font-bold tracking-wider text-primary">BRDCST</span>
             <span className="font-pixel text-[10px] tracking-[0.3em] text-muted-foreground">
@@ -20,7 +29,10 @@ export async function SiteHeader() {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-2 text-sm">
+        <nav className="flex items-center gap-1 text-sm sm:gap-2">
+          <Link href="/schedule" className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "px-2")}>
+            편성표
+          </Link>
           {user ? (
             <>
               <Link href="/broadcasts/new" className={buttonVariants({ size: "sm" })}>
@@ -28,7 +40,7 @@ export async function SiteHeader() {
               </Link>
               <span className="hidden text-muted-foreground sm:inline">{user.nickname}</span>
               <form action={signOut}>
-                <button type="submit" className={buttonVariants({ variant: "ghost", size: "sm" })}>
+                <button type="submit" className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "px-2")}>
                   로그아웃
                 </button>
               </form>

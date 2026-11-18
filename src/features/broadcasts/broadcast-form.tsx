@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { BroadcastFormState } from "./actions";
+import { isoToKstInput } from "./schedule";
 import { CATEGORIES, CATEGORY_LABEL, type Category } from "./types";
 
 type Props = {
   action: (state: BroadcastFormState, formData: FormData) => Promise<BroadcastFormState>;
-  defaultValues?: { title: string; description: string; category: Category };
+  defaultValues?: { title: string; description: string; category: Category; scheduled_at: string | null };
   submitLabel: string;
 };
 
@@ -37,6 +38,15 @@ export function BroadcastForm({ action, defaultValues, submitLabel }: Props) {
             </option>
           ))}
         </select>
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="scheduled_at">방송 예정 시각 (선택, 한국 시간) — 편성표에 표시</Label>
+        <Input
+          id="scheduled_at"
+          name="scheduled_at"
+          type="datetime-local"
+          defaultValue={isoToKstInput(defaultValues?.scheduled_at ?? null)}
+        />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="description">설명 (선택)</Label>

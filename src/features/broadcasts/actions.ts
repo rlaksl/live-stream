@@ -9,6 +9,7 @@ import { endLive } from "@/features/live/end-live";
 import { deleteRecordingFiles } from "@/features/recordings/egress";
 import { assertOwner } from "./policy";
 import { getBroadcast } from "./queries";
+import { kstInputToIso } from "./schedule";
 import { CATEGORIES } from "./types";
 
 export type BroadcastFormState = { error: string } | undefined;
@@ -17,6 +18,10 @@ const broadcastSchema = z.object({
   title: z.string().trim().min(1, "제목을 입력하세요.").max(100, "제목은 100자 이하입니다."),
   description: z.string().trim().max(1000, "설명은 1000자 이하입니다."),
   category: z.enum(CATEGORIES, "카테고리를 고르세요."),
+  // datetime-local 입력값(KST). 비우면 예정 없음
+  scheduled_at: z
+    .union([z.literal(""), z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/)], "예정 시각 형식이 맞지 않습니다.")
+    .transform(kstInputToIso),
 });
 
 export async function createBroadcast(

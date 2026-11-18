@@ -32,6 +32,8 @@ export type Broadcast = {
   category: Category;
   status: BroadcastStatus;
   record_enabled: boolean;
+  /** 방송 예정 시각(선택). 편성표에 쓴다. */
+  scheduled_at: string | null;
   started_at: string | null;
   ended_at: string | null;
   created_at: string;

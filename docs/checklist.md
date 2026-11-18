@@ -163,3 +163,8 @@
 
 - 로그인한 사용자만 방송자를 팔로우·언팔로우합니다. 서버 액션이 로그인과 자기 자신 팔로우 금지를 확인하고(`assertCanFollow`), 언팔로우는 로그인한 사용자 자신의 팔로우만 지웁니다. 홈에 팔로우한 방송자의 방송 중 목록을 보여줍니다.
 - 코드: `src/features/follows/` (`policy.ts`, `actions.ts`, `queries.ts`, `follow-button.tsx`), `supabase/migrations/0005_follows.sql`. 테스트: `src/features/follows/policy.test.ts`
+
+### 편성표
+
+- 방송 예정 시각(선택)을 KST로 입력·표시하고 UTC로 저장합니다. `/schedule`은 오늘(KST) 이후로 예정된 대기 중인 방송을 날짜별·시간순으로 보여줍니다.
+- 코드: `src/features/broadcasts/schedule.ts`, `src/app/schedule/page.tsx`, `listScheduled`(`src/features/broadcasts/queries.ts`), `supabase/migrations/0006_broadcast_schedule.sql`. 테스트: `src/features/broadcasts/schedule.test.ts`

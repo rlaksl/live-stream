@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Mascot } from "@/features/mascot/mascot";
 import { StatusBadge } from "./status-badge";
+import { formatKst } from "./schedule";
 import { CATEGORY_LABEL, type Broadcast } from "./types";
 
 export function BroadcastCard({ broadcast, viewers }: { broadcast: Broadcast; viewers?: number }) {
@@ -24,6 +25,7 @@ export function BroadcastCard({ broadcast, viewers }: { broadcast: Broadcast; vi
         <p className="truncate font-medium group-hover:text-primary">{broadcast.title}</p>
         <p className="text-xs text-muted-foreground">
           {broadcast.owner.nickname} · {CATEGORY_LABEL[broadcast.category]}
+          {broadcast.status === "waiting" && broadcast.scheduled_at && ` · 예정 ${formatKst(broadcast.scheduled_at)}`}
         </p>
       </div>
     </Link>

@@ -6,6 +6,7 @@ import { DeleteBroadcastButton } from "@/features/broadcasts/delete-button";
 import { OffAirScreen } from "@/features/broadcasts/off-air-screen";
 import { findBroadcast } from "@/features/broadcasts/queries";
 import { StatusBadge } from "@/features/broadcasts/status-badge";
+import { formatKst } from "@/features/broadcasts/schedule";
 import { CATEGORY_LABEL } from "@/features/broadcasts/types";
 import { CommentPanel } from "@/features/comments/comment-panel";
 import { listComments } from "@/features/comments/queries";
@@ -33,7 +34,12 @@ export default async function BroadcastPage({ params }: PageProps<"/broadcasts/[
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
       <section className="min-w-0 space-y-4">
         {broadcast.status === "live" && <LivePlayer broadcastId={broadcast.id} />}
-        {broadcast.status === "waiting" && <OffAirScreen face="sleepy" message="곧 방송을 시작합니다" />}
+        {broadcast.status === "waiting" && (
+          <OffAirScreen
+            face="sleepy"
+            message={broadcast.scheduled_at ? `${formatKst(broadcast.scheduled_at)} 방송 예정` : "곧 방송을 시작합니다"}
+          />
+        )}
         {broadcast.status === "ended" && <OffAirScreen face="dead" message="방송이 종료되었습니다" />}
 
         <div className="space-y-2">
