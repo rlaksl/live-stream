@@ -24,7 +24,9 @@ export async function SiteHeader() {
         <div className="flex items-center gap-2">
           {user ? (
             <>
-              <span className="hidden text-sm text-muted-foreground sm:inline">{user.nickname}</span>
+              <Link href="/me" className={cn(buttonVariants({ variant: "ghost" }), headerButton, "px-3")}>
+                마이페이지
+              </Link>
               <form action={signOut}>
                 <button type="submit" className={cn(buttonVariants({ variant: "ghost" }), headerButton, "px-3")}>
                   로그아웃

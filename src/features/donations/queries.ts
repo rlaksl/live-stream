@@ -2,6 +2,7 @@ import "server-only";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase";
 import type { DonationStore } from "./confirm";
+import type { DonationRecord } from "./totals";
 
 export type DonationItem = {
   id: string;
@@ -50,3 +51,31 @@ export const donationStore: DonationStore = {
     return data.length > 0;
   },
 };
+
+type RecordRow = Omit<DonationRecord, "other"> & { donor?: { nickname: string }; streamer?: { nickname: string } };
+
+/** 마이페이지: 내가 받은 확정 후원(최신순, 방송자 본인만) */
+export async function listReceivedDonations(userId: string): Promise<DonationRecord[]> {
+  const { data, error } = await createAdminClient()
+    .from("donations")
+    .select("id, amount, message, confirmed_at, broadcast:broadcasts(id, title), donor:profiles!donor_id(nickname)")
+    .eq("streamer_id", userId)
+    .eq("status", "confirmed")
+    .order("confirmed_at", { ascending: false })
+    .returns<RecordRow[]>();
+  if (error) throw error;
+  return data.map(({ donor, ...r }) => ({ ...r, other: donor! }));
+}
+
+/** 마이페이지: 내가 한 확정 후원(최신순) */
+export async function listSentDonations(userId: string): Promise<DonationRecord[]> {
+  const { data, error } = await createAdminClient()
+    .from("donations")
+    .select("id, amount, message, confirmed_at, broadcast:broadcasts(id, title), streamer:profiles!streamer_id(nickname)")
+    .eq("donor_id", userId)
+    .eq("status", "confirmed")
+    .order("confirmed_at", { ascending: false })
+    .returns<RecordRow[]>();
+  if (error) throw error;
+  return data.map(({ streamer, ...r }) => ({ ...r, other: streamer! }));
+}

@@ -24,3 +24,29 @@ export async function listFollowedIds(userId: string) {
   if (error) throw error;
   return new Set(data.map((f) => f.broadcaster_id as string));
 }
+
+export type FollowPerson = { id: string; nickname: string; since: string };
+
+/** 마이페이지: 나를 팔로우한 사람(본인만 본다) */
+export async function listFollowers(userId: string): Promise<FollowPerson[]> {
+  const { data, error } = await createAdminClient()
+    .from("follows")
+    .select("created_at, follower:profiles!follower_id(id, nickname)")
+    .eq("broadcaster_id", userId)
+    .order("created_at", { ascending: false })
+    .returns<{ created_at: string; follower: { id: string; nickname: string } }[]>();
+  if (error) throw error;
+  return data.map((f) => ({ ...f.follower, since: f.created_at }));
+}
+
+/** 마이페이지: 내가 팔로우한 방송자 */
+export async function listFollowing(userId: string): Promise<FollowPerson[]> {
+  const { data, error } = await createAdminClient()
+    .from("follows")
+    .select("created_at, broadcaster:profiles!broadcaster_id(id, nickname)")
+    .eq("follower_id", userId)
+    .order("created_at", { ascending: false })
+    .returns<{ created_at: string; broadcaster: { id: string; nickname: string } }[]>();
+  if (error) throw error;
+  return data.map((f) => ({ ...f.broadcaster, since: f.created_at }));
+}
