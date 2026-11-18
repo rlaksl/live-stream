@@ -10,6 +10,7 @@ import {
   RoomEvent,
   Track,
   TrackEvent,
+  VideoPresets,
   createLocalAudioTrack,
   createLocalScreenTracks,
   createLocalVideoTrack,
@@ -133,7 +134,15 @@ export function Studio({
 
       room = new Room();
       await room.connect(connection.serverUrl, connection.token);
-      for (const track of tracks) await room.localParticipant.publishTrack(track);
+      for (const track of tracks) {
+        // 휴대폰 카메라는 여러 화질 동시 전송(simulcast)을 끄고 720p 한 줄기로 보낸다.
+        // 안드로이드 크롬에서 simulcast 카메라를 녹화하면 영상이 검게 저장됐다(소리만 정상). 화면 공유는 그대로 둔다.
+        const cameraOptions = { simulcast: false, videoEncoding: VideoPresets.h720.encoding };
+        await room.localParticipant.publishTrack(
+          track,
+          track.source === Track.Source.Camera ? cameraOptions : undefined,
+        );
+      }
       room.on(RoomEvent.Disconnected, () => setPhase("ended"));
       roomRef.current = room;
 
