@@ -1,7 +1,7 @@
 /**
  * 마스코트(90년대 뚱뚱한 브라운관 TV) 도트 그림.
  * 40×34 칸의 격자에 몸체·안테나·노이즈·얼굴을 색으로 채운다. 이미지 파일 없이 전부 코드로 만든다.
- * 캔버스 애니메이션(mascot.tsx)과 파비콘 SVG(app/mascot.svg)가 같은 함수를 쓴다.
+ * 캔버스 애니메이션(mascot.tsx)과 정지 SVG(app/mascot/[face])가 같은 함수를 쓴다.
  */
 
 export type MascotFace = "happy" | "sleepy" | "dead";

@@ -11,7 +11,7 @@ export async function SiteHeader() {
       <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-3 px-4">
         <Link href="/" className="flex items-center gap-2" aria-label="BRDCST 홈">
           {/* eslint-disable-next-line @next/next/no-img-element -- 코드로 만든 작은 SVG라 최적화가 필요 없다 */}
-          <img src="/mascot.svg" alt="" width={36} height={31} style={{ imageRendering: "pixelated" }} />
+          <img src="/mascot/happy.svg" alt="" width={36} height={31} style={{ imageRendering: "pixelated" }} />
           <span className="flex flex-col leading-none">
             <span className="font-pixel text-xl font-bold tracking-wider text-primary">BRDCST</span>
             <span className="font-pixel text-[10px] tracking-[0.3em] text-muted-foreground">

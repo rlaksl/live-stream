@@ -11,7 +11,7 @@ const pixel = Silkscreen({ variable: "--font-pixel", weight: ["400", "700"], sub
 export const metadata: Metadata = {
   title: "BRDCST",
   description: "PC 화면과 휴대폰 카메라로 바로 송출하고 시청하는 실시간 방송",
-  icons: { icon: "/mascot.svg" },
+  icons: { icon: "/mascot/happy.svg" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

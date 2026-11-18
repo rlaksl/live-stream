@@ -53,7 +53,14 @@ export function Mascot({
         ref={canvasRef}
         width={WIDTH}
         height={HEIGHT}
-        style={{ width: size, height: (size * HEIGHT) / WIDTH, imageRendering: "pixelated" }}
+        style={{
+          width: size,
+          height: (size * HEIGHT) / WIDTH,
+          imageRendering: "pixelated",
+          // 자바스크립트 실행 전(첫 로딩)에도 보이도록 같은 그림의 정지 SVG를 깔아 둔다
+          backgroundImage: `url(/mascot/${face}.svg)`,
+          backgroundSize: "100% 100%",
+        }}
       />
     </div>
   );

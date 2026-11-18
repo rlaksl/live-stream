@@ -28,5 +28,5 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   // 정적 파일과 외부 서비스 웹훅·크론은 제외
-  matcher: ["/((?!_next/static|_next/image|mascot.svg|api/livekit/webhook|api/toss/webhook|api/cron).*)"],
+  matcher: ["/((?!_next/static|_next/image|mascot/|api/livekit/webhook|api/toss/webhook|api/cron).*)"],
 };
