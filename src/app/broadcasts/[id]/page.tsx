@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { WatchAside } from "@/features/broadcasts/watch-aside";
 import { getCurrentUser } from "@/features/auth/current-user";
 import { DeleteBroadcastButton } from "@/features/broadcasts/delete-button";
 import { OffAirScreen } from "@/features/broadcasts/off-air-screen";
@@ -8,9 +10,7 @@ import { findBroadcast } from "@/features/broadcasts/queries";
 import { StatusBadge } from "@/features/broadcasts/status-badge";
 import { formatKst } from "@/features/broadcasts/schedule";
 import { CATEGORY_LABEL } from "@/features/broadcasts/types";
-import { CommentPanel } from "@/features/comments/comment-panel";
 import { listComments } from "@/features/comments/queries";
-import { DonationPanel } from "@/features/donations/donation-panel";
 import { FollowButton } from "@/features/follows/follow-button";
 import { getFollowState } from "@/features/follows/queries";
 import { listDonations } from "@/features/donations/queries";
@@ -30,43 +30,94 @@ export default async function BroadcastPage({ params }: PageProps<"/broadcasts/[
   const isOwner = user?.id === broadcast.owner_id;
   const follow = await getFollowState(broadcast.owner_id, user?.id ?? null);
 
+  const followMode = !user ? "login" : isOwner ? "owner" : "ok";
+
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-      <section className="min-w-0 space-y-4">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(340px,400px)]">
+      <section aria-label="플레이어" className="flex min-w-0 flex-col gap-5">
         {broadcast.status === "live" && <LivePlayer broadcastId={broadcast.id} />}
         {broadcast.status === "waiting" && (
           <OffAirScreen
             face="sleepy"
-            message={broadcast.scheduled_at ? `${formatKst(broadcast.scheduled_at)} 방송 예정` : "곧 방송을 시작합니다"}
+            label="대기 중"
+            title="곧 시작합니다"
+            message={
+              <>
+                방송자가 아직 송출을 시작하지 않았어요.
+                {broadcast.scheduled_at && (
+                  <>
+                    <br />
+                    예정 {formatKst(broadcast.scheduled_at)}
+                  </>
+                )}
+              </>
+            }
           />
         )}
-        {broadcast.status === "ended" && <OffAirScreen face="dead" message="방송이 종료되었습니다" />}
+        {broadcast.status === "ended" && (
+          <OffAirScreen
+            face="dead"
+            label="NO SIGNAL"
+            title="방송이 종료되었습니다"
+            message={
+              recording?.status === "ready" ? "녹화된 방송은 다시보기에서 볼 수 있어요." : "다음 방송을 기다려 주세요."
+            }
+          >
+            {recording?.status === "ready" && (
+              <Link
+                href={`/recordings/${recording.id}`}
+                className={cn(buttonVariants(), "h-auto px-5 py-3 text-[15px] font-bold")}
+              >
+                다시보기 재생
+              </Link>
+            )}
+          </OffAirScreen>
+        )}
 
-        <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge status={broadcast.status} />
-            <h1 className="text-xl font-bold">{broadcast.title}</h1>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <p className="text-sm text-muted-foreground">
-              {broadcast.owner.nickname} ·{" "}
-              <Link href={`/broadcasts?category=${broadcast.category}`} className="hover:text-primary">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex min-w-0 flex-col gap-2">
+            <h1 className="text-2xl font-bold">{broadcast.title}</h1>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              {broadcast.status !== "live" && <StatusBadge status={broadcast.status} />}
+              <Link
+                href={`/broadcasts?category=${broadcast.category}`}
+                className="rounded-full bg-secondary px-2.5 py-1 text-[#d4d4d8] hover:text-foreground"
+              >
                 {CATEGORY_LABEL[broadcast.category]}
               </Link>
-            </p>
+              {broadcast.started_at && <span>시작 {formatTime(broadcast.started_at)}</span>}
+            </div>
+          </div>
+          <div className="flex gap-2">
             <FollowButton
               broadcasterId={broadcast.owner_id}
-              count={follow.count}
               following={follow.following}
-              mode={!user ? "login" : isOwner ? "owner" : "ok"}
+              mode={followMode}
               loginNext={`/broadcasts/${id}`}
             />
+            {followMode !== "owner" && (
+              <Link
+                href={user ? `/broadcasts/${id}/donate` : `/login?next=/broadcasts/${id}/donate`}
+                className={cn(buttonVariants(), "h-auto px-[18px] py-3 text-[15px] font-bold")}
+              >
+                후원하기
+              </Link>
+            )}
           </div>
-          {recording && <RecordingNotice id={recording.id} status={recording.status} />}
-          {broadcast.description && (
-            <p className="text-sm whitespace-pre-wrap">{broadcast.description}</p>
-          )}
         </div>
+
+        <div className="flex items-center gap-3 rounded-sm border bg-card p-4">
+          <span aria-hidden className="flex size-11 items-center justify-center rounded-full bg-[#2a2a30] font-bold">
+            {broadcast.owner.nickname.slice(0, 1)}
+          </span>
+          <div className="flex flex-col gap-0.5">
+            <span className="font-medium">{broadcast.owner.nickname}</span>
+            <span className="text-[13px] text-muted-foreground">팔로워 {follow.count}명</span>
+          </div>
+        </div>
+
+        {recording && recording.status !== "ready" && <RecordingNotice status={recording.status} />}
+        {broadcast.description && <p className="text-sm whitespace-pre-wrap">{broadcast.description}</p>}
 
         {isOwner && (
           <div className="flex flex-wrap gap-2">
@@ -83,22 +134,28 @@ export default async function BroadcastPage({ params }: PageProps<"/broadcasts/[
         )}
       </section>
 
-      <aside className="space-y-6">
-        <CommentPanel broadcastId={id} currentUserId={user?.id ?? null} initialComments={comments} />
-        <DonationPanel broadcastId={id} donate={!user ? "login" : isOwner ? "owner" : "ok"} initial={donations} />
-      </aside>
+      <WatchAside
+        broadcastId={id}
+        ownerId={broadcast.owner_id}
+        currentUserId={user?.id ?? null}
+        initialComments={comments}
+        initialDonations={donations}
+      />
     </div>
   );
 }
 
-function RecordingNotice({ id, status }: { id: string; status: "recording" | "ready" | "failed" }) {
-  if (status === "ready") {
-    return (
-      <Link href={`/recordings/${id}`} className={buttonVariants({ variant: "secondary", size: "sm" })}>
-        ▶ 녹화 다시보기
-      </Link>
-    );
-  }
+/** 방송 시작 시각(KST) HH:mm */
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleTimeString("ko-KR", {
+    timeZone: "Asia/Seoul",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
+function RecordingNotice({ status }: { status: "recording" | "failed" }) {
   return (
     <p className="text-sm text-muted-foreground">
       {status === "recording" ? "● 녹화 중이거나 저장하는 중입니다." : "녹화 저장에 실패했습니다."}

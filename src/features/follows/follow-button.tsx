@@ -5,28 +5,33 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { follow, unfollow } from "./actions";
 
 type Props = {
   broadcasterId: string;
-  count: number;
   following: boolean;
-  /** login: 비로그인(로그인으로 보냄), owner: 내 방송(수만 표시), ok: 팔로우 가능 */
+  /** login: 비로그인(로그인으로 보냄), owner: 내 방송(버튼 없음), ok: 팔로우 가능 */
   mode: "login" | "owner" | "ok";
   loginNext: string;
 };
 
-export function FollowButton({ broadcasterId, count, following, mode, loginNext }: Props) {
+const style = "h-auto px-[18px] py-3 text-[15px]";
+
+/** 팔로우 버튼. 팔로워 수는 방송자 정보 옆에 따로 표시한다. */
+export function FollowButton({ broadcasterId, following, mode, loginNext }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const label = `팔로워 ${count}명`;
 
-  if (mode === "owner") return <span className="text-sm text-muted-foreground">{label}</span>;
+  if (mode === "owner") return null;
 
   if (mode === "login") {
     return (
-      <Link href={`/login?next=${encodeURIComponent(loginNext)}`} className={buttonVariants({ size: "sm", variant: "outline" })}>
-        ♡ 팔로우 · {count}
+      <Link
+        href={`/login?next=${encodeURIComponent(loginNext)}`}
+        className={cn(buttonVariants({ variant: "outline" }), style)}
+      >
+        팔로우
       </Link>
     );
   }
@@ -40,8 +45,13 @@ export function FollowButton({ broadcasterId, count, following, mode, loginNext 
   }
 
   return (
-    <Button size="sm" variant={following ? "secondary" : "outline"} disabled={pending} onClick={toggle}>
-      {following ? "♥ 팔로잉" : "♡ 팔로우"} · {count}
+    <Button
+      variant="outline"
+      disabled={pending}
+      onClick={toggle}
+      className={cn(style, following && "border-primary text-primary")}
+    >
+      {following ? "팔로잉" : "팔로우"}
     </Button>
   );
 }
