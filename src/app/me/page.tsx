@@ -11,6 +11,8 @@ import { listReceivedDonations, listSentDonations } from "@/features/donations/q
 import { totalsByBroadcast, type DonationRecord } from "@/features/donations/totals";
 import { listFollowers, listFollowing } from "@/features/follows/queries";
 import { UnfollowButton } from "@/features/follows/unfollow-button";
+import { followerGrowth } from "@/features/follows/growth";
+import { GrowthChart } from "@/features/follows/growth-chart";
 
 /** 마이페이지: 내 방송, 받은·한 후원, 팔로워·팔로잉. 로그인한 본인 데이터만 서버에서 읽는다. */
 export default async function MyPage() {
@@ -125,6 +127,14 @@ export default async function MyPage() {
           )}
         </Section>
       </div>
+
+      <Section title="통계">
+        {followers.length === 0 ? (
+          <Empty>팔로워가 생기면 날짜별 증가 그래프가 여기에 보여요.</Empty>
+        ) : (
+          <GrowthChart points={followerGrowth(followers.map((f) => f.since), 14, new Date())} />
+        )}
+      </Section>
     </div>
   );
 }
