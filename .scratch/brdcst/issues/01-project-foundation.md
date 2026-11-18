@@ -18,4 +18,4 @@ Next.js(App Router)+TypeScript+Tailwind+shadcn/ui 프로젝트를 만들고, 어
 - [ ] Vercel 주소에서 빈 메인 화면이 뜬다
 - [ ] 마이그레이션 SQL로 테이블이 만들어진다
 - [ ] `npm test`, `npm run build`가 통과한다
-- [ ] S3 가능 여부와 녹화 저장소 결정이 spec에 기록된다
+- [x] S3 가능 여부와 녹화 저장소 결정이 spec에 기록된다 (Supabase S3 사용, R2 미사용)

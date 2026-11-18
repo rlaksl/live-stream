@@ -12,6 +12,20 @@
   --font-heading: var(--font-sans);
   --font-pixel: var(--font-pixel);
   --color-live: var(--live);
+  /* 마스코트: 떨어져 통통 튀다가 점점 작게 튀며 멈춘다 (착지할 때 살짝 찌그러짐) */
+  --animate-mascot-bounce: mascot-bounce 1.8s ease-in-out both;
+  @keyframes mascot-bounce {
+    0% { transform: translateY(-60%) scale(1, 1); }
+    18% { transform: translateY(0) scale(1.1, 0.88); }
+    30% { transform: translateY(-30%) scale(0.97, 1.04); }
+    42% { transform: translateY(0) scale(1.06, 0.93); }
+    53% { transform: translateY(-13%) scale(1, 1); }
+    63% { transform: translateY(0) scale(1.03, 0.97); }
+    71% { transform: translateY(-5%) scale(1, 1); }
+    79% { transform: translateY(0) scale(1.01, 0.99); }
+    85% { transform: translateY(-1.5%) scale(1, 1); }
+    91%, 100% { transform: translateY(0) scale(1, 1); }
+  }
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -133,5 +147,8 @@
   }
   html {
     @apply font-sans;
+  }
+  .animate-mascot-bounce {
+    transform-origin: 50% 100%;
   }
 }

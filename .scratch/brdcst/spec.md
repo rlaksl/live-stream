@@ -75,7 +75,7 @@
 
 ## 녹화 (ADR-0002)
 
-- LiveKit Participant egress를 HLS 조각으로 Supabase Storage(S3 호환)에 저장한다. 무료 요금제에서 S3가 안 되면 Cloudflare R2를 쓴다.
+- LiveKit Participant egress를 HLS 조각으로 Supabase Storage(S3 호환, 서울 `ap-northeast-2`)에 저장한다. 무료 요금제에서 S3 protocol이 켜져 있음을 확인했다(2026-11-18). R2는 쓰지 않는다. LiveKit이 이 엔드포인트에 실제로 업로드되는지는 티켓 07에서 확인한다.
 - 녹화 토글을 켠 방송만, 방송 시작 시 egress를 시작한다. 최대 10분이며, 그 뒤 녹화만 중지한다.
 - egress 웹훅(`egress_ended`)으로 녹화 상태를 `ready` 또는 `failed`로 바꾼다. 녹화가 실패해도 송출은 계속된다.
 - 재생은 `hls.js`로 한다. Safari는 기본 재생을 쓴다.

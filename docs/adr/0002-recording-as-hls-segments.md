@@ -5,4 +5,4 @@
 ## Considered Options
 
 - MP4 한 파일: 파일당 50MB 한도 초과.
-- Cloudflare R2: 파일 크기 걱정이 없지만 서비스가 하나 늘어난다. Supabase 무료 요금제에서 S3 업로드가 막혀 있을 때의 대안으로 둔다.
+- Cloudflare R2: 파일 크기 걱정이 없지만 서비스가 하나 늘어난다. Supabase 무료 요금제에서도 S3 업로드가 가능함을 확인해 쓰지 않는다.
