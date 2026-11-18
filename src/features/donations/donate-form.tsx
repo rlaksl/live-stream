@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { ANONYMOUS, loadTossPayments, type TossPaymentsWidgets } from "@tosspayments/tosspayments-sdk";
+import { useState } from "react";
+import { ANONYMOUS, loadTossPayments } from "@tosspayments/tosspayments-sdk";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,42 +12,19 @@ import { AMOUNT_PRESETS, MAX_AMOUNT, MAX_MESSAGE, MIN_AMOUNT, won } from "./poli
 type Props = { broadcastId: string; appUrl: string };
 
 /**
- * 후원 금액·메시지 입력 + 토스페이먼츠 결제위젯 v2(테스트 모드).
- * 결제하기를 누르면 서버에 `대기` 후원을 만든 뒤 그 orderId로 결제를 요청한다.
+ * 후원 금액·메시지 입력 + 토스페이먼츠 결제창(카드·간편결제 통합결제창, 테스트 모드).
+ * 후원하기를 누르면 서버에 `대기` 후원을 만든 뒤 그 orderId로 결제창을 연다.
  * 결제가 끝나면 토스가 /donations/success 또는 /donations/fail로 보낸다.
  */
 export function DonateForm({ broadcastId, appUrl }: Props) {
   const [amount, setAmount] = useState(AMOUNT_PRESETS[1]);
   const [custom, setCustom] = useState("");
   const [message, setMessage] = useState("");
-  const [widgets, setWidgets] = useState<TossPaymentsWidgets | null>(null);
   const [pending, setPending] = useState(false);
-  const started = useRef(false);
 
   const valid = Number.isInteger(amount) && amount >= MIN_AMOUNT && amount <= MAX_AMOUNT;
 
-  // 결제위젯은 한 번만 그린다 (개발 모드의 effect 두 번 실행 대비)
-  useEffect(() => {
-    if (started.current) return;
-    started.current = true;
-    (async () => {
-      const toss = await loadTossPayments(process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!);
-      const w = toss.widgets({ customerKey: ANONYMOUS });
-      await w.setAmount({ currency: "KRW", value: AMOUNT_PRESETS[1] });
-      await Promise.all([
-        w.renderPaymentMethods({ selector: "#payment-method" }),
-        w.renderAgreement({ selector: "#agreement" }),
-      ]);
-      setWidgets(w);
-    })().catch((error) => toast.error(`결제위젯을 불러오지 못했습니다. ${error.message ?? ""}`));
-  }, []);
-
-  useEffect(() => {
-    if (widgets && valid) widgets.setAmount({ currency: "KRW", value: amount });
-  }, [widgets, amount, valid]);
-
   async function pay() {
-    if (!widgets) return;
     setPending(true);
     const result = await createDonation(broadcastId, amount, message);
     if ("error" in result) {
@@ -56,7 +33,10 @@ export function DonateForm({ broadcastId, appUrl }: Props) {
       return;
     }
     try {
-      await widgets.requestPayment({
+      const toss = await loadTossPayments(process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!);
+      await toss.payment({ customerKey: ANONYMOUS }).requestPayment({
+        method: "CARD",
+        amount: { currency: "KRW", value: amount },
         orderId: result.orderId,
         orderName: result.orderName,
         customerName: result.customerName,
@@ -64,7 +44,7 @@ export function DonateForm({ broadcastId, appUrl }: Props) {
         failUrl: `${appUrl}/donations/fail`,
       });
     } catch (error) {
-      // 필수 약관 미동의, 결제창 닫기 등
+      // 결제창 닫기 등. 후원은 `대기`로 남고 합계에 들어가지 않는다.
       toast.error(error instanceof Error ? error.message : "결제를 요청하지 못했습니다.");
       setPending(false);
     }
@@ -117,17 +97,11 @@ export function DonateForm({ broadcastId, appUrl }: Props) {
         />
       </div>
 
-      {/* 결제위젯은 밝은 배경 기준이라 흰 카드 위에 그린다 */}
-      <div className="overflow-hidden rounded-xl bg-white">
-        <div id="payment-method" />
-        <div id="agreement" />
-      </div>
-
-      <Button className="w-full" size="lg" onClick={pay} disabled={!widgets || !valid || pending}>
+      <Button className="w-full" size="lg" onClick={pay} disabled={!valid || pending}>
         {valid ? `${won(amount)} 후원하기` : "후원하기"}
       </Button>
       <p className="text-center text-xs text-muted-foreground">
-        테스트 결제입니다. 실제로 돈이 빠져나가지 않습니다.
+        테스트 결제입니다. 실제로 돈이 빠져나가지 않습니다. 카드·간편결제 결제창이 열립니다.
       </p>
     </div>
   );

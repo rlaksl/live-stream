@@ -13,7 +13,7 @@
 - Next.js(App Router) + TypeScript, Tailwind CSS + shadcn/ui, 어두운 테마, PC·모바일 반응형
 - LiveKit Cloud(무료): 송출·시청(`@livekit/components-react`), 웹훅, 녹화(egress)
 - Supabase(무료): Postgres, Auth, Storage
-- 토스페이먼츠 결제위젯 v2 테스트 모드
+- 토스페이먼츠 결제창(SDK v2, API 개별 연동 키) 테스트 모드
 - Vercel(Hobby), Vitest
 
 ## 데이터 접근 (ADR-0001)
@@ -90,7 +90,7 @@
 ## 후원 (ADR-0003)
 
 1. 서버가 `pending` 후원을 만든다(금액·방송·후원자·방송자·메시지, `order_id` 발급).
-2. 결제위젯으로 결제한다.
+2. 결제창(카드·간편결제 통합결제창)으로 결제한다.
 3. 성공 리다이렉트를 받으면 서버가 저장된 금액과 비교한 뒤 `POST /v1/payments/confirm`을 호출한다. 성공하면 `pending` → `confirmed`로 바꾼다. 조건부 업데이트라 한 번만 바뀐다.
 4. 웹훅 `PAYMENT_STATUS_CHANGED`가 오면 `GET /v1/payments/{paymentKey}`로 다시 조회한다. 상태가 `DONE`이고 금액과 주문이 일치하면 3과 같은 확정 함수를 쓴다.
 

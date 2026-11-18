@@ -7,7 +7,7 @@ import { getBroadcast } from "@/features/broadcasts/queries";
 import { assertCanDonate, parseDonationInput } from "./policy";
 
 /**
- * 결제 전에 `대기` 후원을 만든다. 결제위젯은 돌려받은 orderId로 결제를 요청하고,
+ * 결제 전에 `대기` 후원을 만든다. 결제창은 돌려받은 orderId로 결제를 요청하고,
  * 승인 때 이 행에 저장된 금액과 비교한다. (docs/adr/0003)
  */
 export async function createDonation(broadcastId: string, amount: number, message: string) {
