@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 /** 헤더 주 메뉴. 지금 보고 있는 메뉴는 배경을 밝게 한다. */
 const LINKS = [
   { href: "/", label: "홈" },
+  { href: "/recordings", label: "다시보기" },
   { href: "/schedule", label: "편성표" },
 ];
 

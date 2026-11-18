@@ -8,25 +8,20 @@ export function BroadcastCard({ broadcast, viewers }: { broadcast: Broadcast; vi
   const face = broadcast.status === "live" ? "happy" : broadcast.status === "waiting" ? "sleepy" : "dead";
 
   return (
-    <Link
-      href={`/broadcasts/${broadcast.id}`}
-      className="group block overflow-hidden rounded-xl border bg-card transition hover:border-primary/60"
-    >
-      <div className="relative flex aspect-video items-center justify-center bg-black/50">
+    <Link href={`/broadcasts/${broadcast.id}`} className="group flex flex-col gap-3">
+      <div className="relative flex aspect-video items-center justify-center rounded-sm border bg-[#18181c] transition group-hover:border-primary">
         <Mascot face={face} size={80} />
-        <StatusBadge status={broadcast.status} className="absolute top-2 left-2" />
+        <StatusBadge status={broadcast.status} className="absolute top-2.5 left-2.5" />
         {viewers !== undefined && (
-          <span className="absolute top-2 right-2 rounded bg-black/60 px-1.5 py-0.5 text-xs">
-            시청자 {viewers}명
-          </span>
+          <span className="absolute right-2.5 bottom-2.5 rounded-sm bg-black/60 px-2 py-1 text-xs">시청 {viewers}</span>
         )}
       </div>
-      <div className="space-y-1 p-3">
-        <p className="truncate font-medium group-hover:text-primary">{broadcast.title}</p>
-        <p className="text-xs text-muted-foreground">
+      <div className="flex flex-col gap-0.5">
+        <span className="truncate font-medium group-hover:text-primary">{broadcast.title}</span>
+        <span className="text-sm text-muted-foreground">
           {broadcast.owner.nickname} · {CATEGORY_LABEL[broadcast.category]}
           {broadcast.status === "waiting" && broadcast.scheduled_at && ` · 예정 ${formatKst(broadcast.scheduled_at)}`}
-        </p>
+        </span>
       </div>
     </Link>
   );

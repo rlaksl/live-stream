@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import type { Category } from "@/features/broadcasts/types";
 import { createAdminClient } from "@/lib/supabase";
 import { playlistUrl, syncRecording } from "./egress";
 
@@ -11,20 +12,16 @@ export type Recording = {
   playlist_path: string;
   started_at: string;
   ended_at: string | null;
-  broadcast: { title: string; owner: { nickname: string } };
+  broadcast: { title: string; category: Category; owner: { nickname: string } };
 };
 
-const SELECT = "id, broadcast_id, egress_id, status, playlist_path, started_at, ended_at, broadcast:broadcasts(title, owner:profiles(nickname))";
+const SELECT = "id, broadcast_id, egress_id, status, playlist_path, started_at, ended_at, broadcast:broadcasts!inner(title, category, owner:profiles(nickname))";
 
-/** 다시보기 목록: 저장이 끝난 녹화만, 최신순 */
-export async function listRecordings(limit = 60): Promise<(Recording & { url: string })[]> {
-  const { data, error } = await createAdminClient()
-    .from("recordings")
-    .select(SELECT)
-    .eq("status", "ready")
-    .order("started_at", { ascending: false })
-    .limit(limit)
-    .returns<Recording[]>();
+/** 다시보기 목록: 저장이 끝난 녹화만, 최신순. 카테고리를 주면 그 방송 카테고리만. */
+export async function listRecordings(limit = 60, category?: Category): Promise<(Recording & { url: string })[]> {
+  let query = createAdminClient().from("recordings").select(SELECT).eq("status", "ready");
+  if (category) query = query.eq("broadcast.category", category);
+  const { data, error } = await query.order("started_at", { ascending: false }).limit(limit).returns<Recording[]>();
   if (error) throw error;
   return data.map((r) => ({ ...r, url: playlistUrl(r.playlist_path) }));
 }

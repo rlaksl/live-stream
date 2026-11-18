@@ -1,7 +1,7 @@
 # 후원 알림 배너·음성
 
 Status: ready-for-agent
-Blocked by: 12, 22
+Blocked by: 12, 22, 26, 27 (사용자 지시: 다른 작업이 모두 끝난 뒤)
 출처: `docs/design/brdcst-design/DonationAlert.dc.html`, DESIGN.md 후원 알림 절
 
 ## 완료 조건
