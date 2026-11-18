@@ -8,16 +8,19 @@ import { findBroadcast } from "@/features/broadcasts/queries";
 import { StatusBadge } from "@/features/broadcasts/status-badge";
 import { CommentPanel } from "@/features/comments/comment-panel";
 import { listComments } from "@/features/comments/queries";
+import { DonationPanel } from "@/features/donations/donation-panel";
+import { listDonations } from "@/features/donations/queries";
 import { LivePlayer } from "@/features/live/live-player";
 import { findRecordingOfBroadcast } from "@/features/recordings/queries";
 
 export default async function BroadcastPage({ params }: PageProps<"/broadcasts/[id]">) {
   const { id } = await params;
-  const [broadcast, user, recording, comments] = await Promise.all([
+  const [broadcast, user, recording, comments, donations] = await Promise.all([
     findBroadcast(id),
     getCurrentUser(),
     findRecordingOfBroadcast(id),
     listComments(id),
+    listDonations(id),
   ]);
   if (!broadcast) notFound();
   const isOwner = user?.id === broadcast.owner_id;
@@ -58,6 +61,7 @@ export default async function BroadcastPage({ params }: PageProps<"/broadcasts/[
 
       <aside className="space-y-6">
         <CommentPanel broadcastId={id} currentUserId={user?.id ?? null} initialComments={comments} />
+        <DonationPanel broadcastId={id} donate={!user ? "login" : isOwner ? "owner" : "ok"} initial={donations} />
       </aside>
     </div>
   );
