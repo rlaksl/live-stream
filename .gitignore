@@ -14,3 +14,9 @@ build/
 .DS_Store
 *.log
 .vercel
+
+# Local contest notes (not committed)
+CONTEST.md
+
+# IDE
+.idea/
