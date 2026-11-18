@@ -20,9 +20,9 @@
 
 ### 탭 소리 또는 시스템 소리와 마이크 음성을 함께 송출한다 / 마이크 음성을 함께 송출한다
 
-- 화면 공유를 `audio: true, systemAudio: "include"`로 요청해 탭·시스템 소리 트랙을 받고, 마이크 트랙(`createLocalAudioTrack`)을 따로 만들어 **오디오 트랙 2개를 함께** 송출합니다. 송출 화면에 화면·탭 소리·마이크 트랙 상태를 각각 표시합니다.
+- 화면 공유를 `audio: true, systemAudio: "include"`로 요청해 탭·시스템 소리 트랙을 받고, 마이크 트랙(`createLocalAudioTrack`)을 따로 만들어 **오디오 트랙 2개를 함께** 송출합니다. 송출 화면에 화면·공유 소리·마이크 장치 상태 3칸을 각각 표시하고, 공유 소리가 없으면 형광펜 안내와 **다시 고르기**(`resetPreview`)를 보여줍니다.
 - Chrome·Edge 데스크톱에서만 탭 소리를 지원한다는 안내를 화면에 표시합니다.
-- 코드: `src/features/live/studio.tsx` (`preview`, 트랙 상태 `Indicator`, `toggleMic`)
+- 코드: `src/features/live/studio.tsx` (`preview`, 장치 상태 `DeviceStatus`, `resetPreview`, `toggleMic`)
 - 확인: 녹화 결과에 탭 소리(1000Hz)와 마이크(440Hz) 테스트 음이 모두 들어간 것을 확인했습니다(녹화는 방송자의 모든 오디오 트랙을 섞음).
 
 ### 방송 시작과 종료 시 송출 연결을 생성하고 종료한다
@@ -55,8 +55,8 @@
 
 ### 방송 목록과 상세 화면, PC·모바일에서 송출한 방송을 각각 다른 기기에서 수신·재생
 
-- 홈: 대표 영상(방송 중이 있으면 LIVE, 없으면 최근 녹화) + 내 방송 시작 → 방송 중(시청자 수) → 최근 다시보기(실제 녹화 프레임 썸네일) — `src/app/page.tsx`. 전체 방송(최신순, 카테고리 필터) `src/app/broadcasts/page.tsx`, 카테고리 목록 `src/features/broadcasts/types.ts`(DB check 제약 `supabase/migrations/0004_broadcast_category.sql`), 시청자 수 `src/features/live/viewer-counts.ts`
-- 상세: 상태별 화면(대기·방송 중·종료) — `src/app/broadcasts/[id]/page.tsx`
+- 홈: 대표 영상 캐러셀(방송 중 → 최근 다시보기, 화살표·점) + 소개 패널(내 방송 시작) → 카테고리 칩 → 방송 중(시청자 수, 없으면 놀란 눈 마스코트 빈 상태) → 최근 다시보기(실제 녹화 프레임 썸네일) — `src/app/page.tsx`, `src/features/home/featured-carousel.tsx`, `src/features/broadcasts/category-chips.tsx`. 전체 방송(최신순, 카테고리 필터) `src/app/broadcasts/page.tsx`, 카테고리 목록 `src/features/broadcasts/types.ts`(DB check 제약 `supabase/migrations/0004_broadcast_category.sql`), 시청자 수 `src/features/live/viewer-counts.ts`
+- 상세: 상태별 화면(대기·방송 중·종료), 방송자 정보와 팔로워 수, 옆(모바일은 아래)에 후원 합계·댓글 — `src/app/broadcasts/[id]/page.tsx`, `src/features/broadcasts/watch-aside.tsx`
 - 시청: 로그인 없이 구독 전용 토큰(`getViewerConnection`)으로 재생 — `src/features/live/live-player.tsx`
 
 ### 방송 중과 종료 상태를 관리하고 방송 종료 시 송출을 중단한다
@@ -101,7 +101,8 @@
 ### 로그인한 사용자가 방송별 댓글을 작성, 조회, 수정, 삭제
 
 - 조회는 누구나(`GET /api/broadcasts/[id]/comments`, 2.5초 폴링), 작성은 로그인 사용자, 본문 1~300자.
-- 코드: `src/features/comments/actions.ts` (`createComment`, `updateComment`, `deleteComment`), `src/features/comments/queries.ts`, `src/features/comments/comment-panel.tsx`, `src/app/api/broadcasts/[id]/comments/route.ts`
+- 메시지가 있는 확정 후원은 댓글 사이에 시간순으로 섞어 **형광펜 닉네임 + "N원 후원"** 으로 구분해 보여주며, 수정·삭제 버튼이 없습니다(`mergeFeed`).
+- 코드: `src/features/comments/actions.ts` (`createComment`, `updateComment`, `deleteComment`), `src/features/comments/queries.ts`, `src/features/comments/comment-panel.tsx`, `src/features/comments/feed.ts`, `src/app/api/broadcasts/[id]/comments/route.ts`. 테스트: `src/features/comments/feed.test.ts`
 
 ### 댓글 수정 및 삭제 시 서버에서 작성자 권한 검증
 
@@ -134,6 +135,14 @@
   - 결제 완료(DONE) 후 `대기`로 남은 주문에 웹훅 요청 3개를 동시에 보냄 → 토스 재조회로 확정, 합계는 1,000원만 증가.
   - 금액을 바꾼 성공 URL → "결제 금액이 후원 금액과 다릅니다"로 거절. 존재하지 않는 결제 키의 웹훅 → 확정되지 않음.
 
+### 후원 알림
+
+- 시청 화면과 송출 화면이 4초마다 확정 후원을 불러와, **페이지를 연 뒤 새로 들어온 후원만**(`pickNewDonations`) 차례로 5초씩 배너로 보여줍니다. 첫 응답은 "이미 본 것"으로만 기록해 새로고침 때 지난 후원이 다시 뜨지 않습니다.
+- 배너가 뜰 때 Web Audio로 만든 효과음 뒤에 브라우저 내장 음성(`speechSynthesis`)이 "닉네임님 N원 후원"을 읽습니다. 한국어 음성이 없으면 효과음·배너만 나옵니다. 브라우저 정책상 화면을 한 번 누른 뒤에 소리가 납니다.
+- **후원 음성** 켜기/끄기는 이 브라우저에만 기억합니다(`localStorage`, 막혀 있으면 켜짐).
+- 코드: `src/features/donations/donation-alert.tsx`, `src/features/donations/new-donations.ts`. 테스트: `src/features/donations/new-donations.test.ts`
+- 확인(2026-11-19): 브라우저에서 후원 API 응답만 바꿔 새 후원을 흉내 내(DB·결제 없음) 1440·390px에서 배너 표시, 음성 문구, 5초 뒤 사라짐을 확인했습니다. 실제 결제 후 알림은 실기기 확인 대상입니다.
+
 ## 녹화 (선택)
 
 ### 라이브 방송을 녹화 영상으로 저장
@@ -144,8 +153,8 @@
 
 ### 녹화 영상 목록과 상세 조회 및 재생
 
-- 홈 **최근 다시보기**(목록, 녹화 앞부분 프레임을 썸네일로), `/recordings/[id]`(상세·재생). HLS를 직접 재생하는 브라우저(Safari·최신 Chrome)는 그대로, 그 밖에는 `hls.js`로 재생합니다 — `src/features/recordings/replay-player.tsx`.
-- 코드: `src/features/recordings/queries.ts`, `src/features/recordings/recording-card.tsx`, `src/features/recordings/replay-player.tsx`, `src/app/recordings/[id]/page.tsx`
+- 홈 **최근 다시보기**와 `/recordings`(전체 목록, 카테고리 필터, 녹화 앞부분 프레임을 썸네일로·길이·카테고리·날짜), `/recordings/[id]`(상세·재생). HLS를 직접 재생하는 브라우저(Safari·최신 Chrome)는 그대로, 그 밖에는 `hls.js`로 재생합니다 — `src/features/recordings/replay-player.tsx`.
+- 코드: `src/features/recordings/queries.ts` (`listRecordings`, `findRecording`), `src/features/recordings/recording-card.tsx`, `src/features/recordings/replay-player.tsx`, `src/app/recordings/page.tsx`, `src/app/recordings/[id]/page.tsx`
 
 ### 영상 정보와 저장 위치를 영구 저장
 
@@ -161,10 +170,27 @@
 
 ### 팔로우
 
-- 로그인한 사용자만 방송자를 팔로우·언팔로우합니다. 서버 액션이 로그인과 자기 자신 팔로우 금지를 확인하고(`assertCanFollow`), 언팔로우는 로그인한 사용자 자신의 팔로우만 지웁니다. 홈에 팔로우한 방송자의 방송 중 목록을 보여줍니다.
-- 코드: `src/features/follows/` (`policy.ts`, `actions.ts`, `queries.ts`, `follow-button.tsx`), `supabase/migrations/0005_follows.sql`. 테스트: `src/features/follows/policy.test.ts`
+- 로그인한 사용자만 방송자를 팔로우·언팔로우합니다. 서버 액션이 로그인과 자기 자신 팔로우 금지를 확인하고(`assertCanFollow`), 언팔로우는 로그인한 사용자 자신의 팔로우만 지웁니다(`assertCanUnfollow`). 방송자 정보 옆에 팔로워 수를 공개로 표시합니다.
+- `/following`(로그인 필요): 팔로우한 방송자의 방송 중 → 최근 방송.
+- 코드: `src/features/follows/` (`policy.ts`, `actions.ts`, `queries.ts`, `follow-button.tsx`, `unfollow-button.tsx`), `src/app/following/page.tsx`, `listBroadcastsByOwners`(`src/features/broadcasts/queries.ts`), `supabase/migrations/0005_follows.sql`. 테스트: `src/features/follows/policy.test.ts`
 
 ### 편성표
 
 - 방송 예정 시각(선택)을 KST로 입력·표시하고 UTC로 저장합니다. `/schedule`은 오늘(KST) 이후로 예정된 대기 중인 방송을 날짜별·시간순으로 보여줍니다.
 - 코드: `src/features/broadcasts/schedule.ts`, `src/app/schedule/page.tsx`, `listScheduled`(`src/features/broadcasts/queries.ts`), `supabase/migrations/0006_broadcast_schedule.sql`. 테스트: `src/features/broadcasts/schedule.test.ts`
+
+### 마이페이지
+
+- `/me`는 서버에서 `getCurrentUser`로 로그인한 사용자를 확인하고(비로그인은 로그인 화면으로), **그 사용자 id로만** 조회합니다. 주소나 요청 값으로 다른 사람의 데이터를 고를 방법이 없습니다.
+- 내 방송(상태·카테고리·날짜, 수정·삭제 — 기존 소유자 검증 서버 액션 사용), 받은 후원(전체·방송별 합계와 내역, "테스트 결제, 실제 정산 없음"), 내가 한 후원, 팔로워(본인만 보임)·팔로잉(팔로우 취소).
+- 방송별 합계는 삭제된 방송의 후원을 "삭제된 방송"으로 묶습니다(`totalsByBroadcast`).
+- 코드: `src/app/me/page.tsx`, `listReceivedDonations`·`listSentDonations`(`src/features/donations/queries.ts`), `src/features/donations/totals.ts`, `listFollowers`·`listFollowing`(`src/features/follows/queries.ts`). 테스트: `src/features/donations/totals.test.ts`
+
+### 통계
+
+- 마이페이지 맨 아래. 가짜 데이터 없이 실제 기록만 보여주고, 기록이 없으면 빈 상태 안내를 보여줍니다.
+- 팔로워 수: 최근 14일(KST) 날짜별 누적 막대 그래프, 마우스·포커스 시 값과 **표로 보기**. `follows.created_at` 기준(언팔로우 이력은 없어 현재 팔로워 기준).
+- 방송별 최고 시청자 수: LiveKit 웹훅 `participant_joined`마다 현재 시청자 수(방송자 제외)를 세어 DB 함수 `record_peak_viewers`로 더 큰 값만 남깁니다(동시 요청에도 줄지 않음).
+- 다시보기 재생 수: 다시보기 화면을 열 때마다 DB 함수 `increment_recording_play`로 1 올립니다(새로고침 포함 단순 집계).
+- 두 값은 2026-11-19부터 기록합니다. 그 전 방송·녹화는 0이라 목록에서 뺍니다. DB 함수는 서버 전용 키(service_role)만 실행할 수 있습니다.
+- 코드: `src/features/follows/growth.ts`, `src/features/follows/growth-chart.tsx`, `recordPeakViewers`(`src/features/live/viewer-counts.ts`), `src/app/api/livekit/webhook/route.ts`, `countRecordingPlay`·`listMyRecordingPlays`(`src/features/recordings/queries.ts`), `supabase/migrations/0007_stats.sql`. 테스트: `src/features/follows/growth.test.ts`
