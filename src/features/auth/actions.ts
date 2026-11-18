@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createAdminClient, createAuthClient } from "@/lib/supabase";
+import { safeRedirect } from "./safe-redirect";
 import { TEST_ACCOUNTS, type TestAccountKey } from "./test-accounts";
 
 export type AuthFormState = { error: string } | undefined;
@@ -45,7 +46,7 @@ export async function signIn(_: AuthFormState, formData: FormData): Promise<Auth
 }
 
 /** 테스트 계정으로 바로 로그인한다. 계정이 없으면(DB 초기화 후 등) 먼저 만든다. */
-export async function signInAsTestAccount(key: TestAccountKey, next: string) {
+export async function signInAsTestAccount(key: TestAccountKey, next: string): Promise<AuthFormState> {
   const account = TEST_ACCOUNTS[key];
   const password = process.env.TEST_ACCOUNT_PASSWORD!;
 
@@ -105,9 +106,4 @@ async function signInWithPassword(email: string, password: string) {
 
 function safeNext(formData: FormData) {
   return safeRedirect(String(formData.get("next") ?? "/"));
-}
-
-/** 외부 주소로의 리다이렉트를 막는다. */
-function safeRedirect(path: string) {
-  return path.startsWith("/") && !path.startsWith("//") ? path : "/";
 }

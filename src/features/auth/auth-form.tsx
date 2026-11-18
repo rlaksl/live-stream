@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useTransition } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -66,10 +66,16 @@ function Field({ label, name, ...props }: { label: string; name: string } & Reac
 
 function TestAccountButtons({ next }: { next: string }) {
   const [pending, startTransition] = useTransition();
+  const [loggingIn, setLoggingIn] = useState<TestAccountKey>();
+  const [error, setError] = useState<string>();
 
   function login(key: TestAccountKey) {
+    setLoggingIn(key);
+    setError(undefined);
     startTransition(async () => {
-      await signInAsTestAccount(key, next);
+      // 성공하면 서버가 돌아갈 주소로 보내므로 결과가 오는 건 실패했을 때뿐이다
+      const result = await signInAsTestAccount(key, next);
+      if (result?.error) setError(result.error);
     });
   }
 
@@ -79,10 +85,11 @@ function TestAccountButtons({ next }: { next: string }) {
       <div className="grid grid-cols-2 gap-2">
         {(Object.keys(TEST_ACCOUNTS) as TestAccountKey[]).map((key) => (
           <Button key={key} variant="outline" disabled={pending} onClick={() => login(key)}>
-            {TEST_ACCOUNTS[key].nickname}
+            {pending && loggingIn === key ? "로그인 중…" : TEST_ACCOUNTS[key].nickname}
           </Button>
         ))}
       </div>
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }
