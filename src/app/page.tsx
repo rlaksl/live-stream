@@ -5,6 +5,8 @@ import { BroadcastCard } from "@/features/broadcasts/broadcast-card";
 import { listBroadcasts } from "@/features/broadcasts/queries";
 import { StatusBadge } from "@/features/broadcasts/status-badge";
 import type { Broadcast } from "@/features/broadcasts/types";
+import { getCurrentUser } from "@/features/auth/current-user";
+import { listFollowedIds } from "@/features/follows/queries";
 import { getViewerCounts } from "@/features/live/viewer-counts";
 import { Mascot } from "@/features/mascot/mascot";
 import { RecordingCard } from "@/features/recordings/recording-card";
@@ -12,12 +14,13 @@ import { RecordingThumbnail } from "@/features/recordings/recording-thumbnail";
 import { listRecordings } from "@/features/recordings/queries";
 
 /**
- * 홈: 대표 영상 → 방송 중 → 최근 다시보기.
+ * 홈: 대표 영상 → (로그인 시) 팔로우한 방송자의 방송 → 방송 중 → 최근 다시보기.
  * 처음 온 사람이 바로 영상을 볼 수 있도록, 방송 중이 없으면 최근 녹화를 대표 영상으로 보여준다.
  */
 export default async function HomePage() {
-  const [live, recordings] = await Promise.all([listBroadcasts("live"), listRecordings(6)]);
+  const [live, recordings, user] = await Promise.all([listBroadcasts("live"), listRecordings(6), getCurrentUser()]);
   const viewerCounts = await getViewerCounts(live.map((b) => b.id));
+  const followedIds = user ? await listFollowedIds(user.id) : null;
 
   return (
     <div className="space-y-10">
@@ -33,16 +36,18 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {followedIds && followedIds.size > 0 && (
+        <Section title="팔로우한 방송자">
+          <LiveGrid
+            broadcasts={live.filter((b) => followedIds.has(b.owner_id))}
+            viewerCounts={viewerCounts}
+            empty="팔로우한 방송자가 지금 방송 중이 아닙니다."
+          />
+        </Section>
+      )}
+
       <Section title="방송 중" more={{ href: "/broadcasts", label: "전체 방송 보기" }}>
-        {live.length === 0 ? (
-          <Empty>지금 방송 중인 방송이 없습니다.</Empty>
-        ) : (
-          <Grid>
-            {live.map((b) => (
-              <BroadcastCard key={b.id} broadcast={b} viewers={viewerCounts.get(b.id)} />
-            ))}
-          </Grid>
-        )}
+        <LiveGrid broadcasts={live} viewerCounts={viewerCounts} empty="지금 방송 중인 방송이 없습니다." />
       </Section>
 
       <Section title="최근 다시보기">
@@ -99,6 +104,25 @@ function Featured({
       <Mascot face="happy" size={140} bounce />
       <p className="text-sm text-muted-foreground">아직 방송이 없습니다. 첫 방송을 시작해 보세요.</p>
     </div>
+  );
+}
+
+function LiveGrid({
+  broadcasts,
+  viewerCounts,
+  empty,
+}: {
+  broadcasts: Broadcast[];
+  viewerCounts: Map<string, number>;
+  empty: string;
+}) {
+  if (broadcasts.length === 0) return <Empty>{empty}</Empty>;
+  return (
+    <Grid>
+      {broadcasts.map((b) => (
+        <BroadcastCard key={b.id} broadcast={b} viewers={viewerCounts.get(b.id)} />
+      ))}
+    </Grid>
   );
 }
 

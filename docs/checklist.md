@@ -151,3 +151,15 @@
 
 - `recordings` 테이블에 방송·egress id·상태·재생 목록 경로(`playlist_path`)·시작/종료 시각을 저장합니다. 방송을 삭제하면 녹화 행과 저장 파일도 삭제합니다(`deleteRecordingFiles`).
 - 코드: `supabase/migrations/0001_init.sql`, `supabase/migrations/0003_recordings_bucket.sql`, `src/features/recordings/egress.ts`
+
+## 추가 기능
+
+### 카테고리
+
+- 방송 등록·수정 때 카테고리(게임·음악·토크·공부·개발·기타)를 고르고, 서버는 목록에 있는 값만 받습니다(zod enum + DB check 제약). 전체 방송에서 카테고리로 거릅니다.
+- 코드: `src/features/broadcasts/types.ts` (`CATEGORY_LABEL`), `src/app/broadcasts/page.tsx`, `supabase/migrations/0004_broadcast_category.sql`. 테스트: `src/features/broadcasts/types.test.ts`
+
+### 팔로우
+
+- 로그인한 사용자만 방송자를 팔로우·언팔로우합니다. 서버 액션이 로그인과 자기 자신 팔로우 금지를 확인하고(`assertCanFollow`), 언팔로우는 로그인한 사용자 자신의 팔로우만 지웁니다. 홈에 팔로우한 방송자의 방송 중 목록을 보여줍니다.
+- 코드: `src/features/follows/` (`policy.ts`, `actions.ts`, `queries.ts`, `follow-button.tsx`), `supabase/migrations/0005_follows.sql`. 테스트: `src/features/follows/policy.test.ts`

@@ -10,6 +10,8 @@ import { CATEGORY_LABEL } from "@/features/broadcasts/types";
 import { CommentPanel } from "@/features/comments/comment-panel";
 import { listComments } from "@/features/comments/queries";
 import { DonationPanel } from "@/features/donations/donation-panel";
+import { FollowButton } from "@/features/follows/follow-button";
+import { getFollowState } from "@/features/follows/queries";
 import { listDonations } from "@/features/donations/queries";
 import { LivePlayer } from "@/features/live/live-player";
 import { findRecordingOfBroadcast } from "@/features/recordings/queries";
@@ -25,6 +27,7 @@ export default async function BroadcastPage({ params }: PageProps<"/broadcasts/[
   ]);
   if (!broadcast) notFound();
   const isOwner = user?.id === broadcast.owner_id;
+  const follow = await getFollowState(broadcast.owner_id, user?.id ?? null);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
@@ -38,12 +41,21 @@ export default async function BroadcastPage({ params }: PageProps<"/broadcasts/[
             <StatusBadge status={broadcast.status} />
             <h1 className="text-xl font-bold break-all">{broadcast.title}</h1>
           </div>
-          <p className="text-sm text-muted-foreground">
-            {broadcast.owner.nickname} ·{" "}
-            <Link href={`/broadcasts?category=${broadcast.category}`} className="hover:text-primary">
-              {CATEGORY_LABEL[broadcast.category]}
-            </Link>
-          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="text-sm text-muted-foreground">
+              {broadcast.owner.nickname} ·{" "}
+              <Link href={`/broadcasts?category=${broadcast.category}`} className="hover:text-primary">
+                {CATEGORY_LABEL[broadcast.category]}
+              </Link>
+            </p>
+            <FollowButton
+              broadcasterId={broadcast.owner_id}
+              count={follow.count}
+              following={follow.following}
+              mode={!user ? "login" : isOwner ? "owner" : "ok"}
+              loginNext={`/broadcasts/${id}`}
+            />
+          </div>
           {recording && <RecordingNotice id={recording.id} status={recording.status} />}
           {broadcast.description && (
             <p className="text-sm whitespace-pre-wrap">{broadcast.description}</p>
