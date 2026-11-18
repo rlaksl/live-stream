@@ -37,5 +37,7 @@ export type Broadcast = {
   started_at: string | null;
   ended_at: string | null;
   created_at: string;
+  /** 최고 동시 시청자 수(0007 이후 기록, 그 전 방송은 0) */
+  peak_viewers: number;
   owner: { nickname: string };
 };

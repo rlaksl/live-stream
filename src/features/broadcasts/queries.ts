@@ -5,7 +5,7 @@ import { notFound } from "@/lib/app-error";
 import { startOfTodayKst } from "./schedule";
 import type { Broadcast, Category } from "./types";
 
-const SELECT = "id, owner_id, title, description, category, status, record_enabled, scheduled_at, started_at, ended_at, created_at, owner:profiles(nickname)";
+const SELECT = "id, owner_id, title, description, category, status, record_enabled, scheduled_at, started_at, ended_at, created_at, peak_viewers, owner:profiles(nickname)";
 
 export async function findBroadcast(id: string): Promise<Broadcast | null> {
   if (!z.uuid().safeParse(id).success) return null;

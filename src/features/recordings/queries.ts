@@ -15,7 +15,8 @@ export type Recording = {
   broadcast: { title: string; category: Category; owner: { nickname: string } };
 };
 
-const SELECT = "id, broadcast_id, egress_id, status, playlist_path, started_at, ended_at, broadcast:broadcasts!inner(title, category, owner:profiles(nickname))";
+const SELECT =
+  "id, broadcast_id, egress_id, status, playlist_path, started_at, ended_at, broadcast:broadcasts!inner(title, category, owner:profiles(nickname))";
 
 /** 다시보기 목록: 저장이 끝난 녹화만, 최신순. 카테고리를 주면 그 방송 카테고리만. */
 export async function listRecordings(limit = 60, category?: Category): Promise<(Recording & { url: string })[]> {
@@ -37,6 +38,27 @@ export async function findRecording(id: string): Promise<(Recording & { url: str
   }
   if (error) throw error;
   return data && { ...data, url: playlistUrl(data.playlist_path) };
+}
+
+/** 다시보기 화면을 열 때마다 재생 수를 1 올린다(새로고침도 1회로 세는 단순 집계). */
+export async function countRecordingPlay(id: string) {
+  const { error } = await createAdminClient().rpc("increment_recording_play", { p_recording_id: id });
+  if (error) throw error;
+}
+
+export type RecordingPlays = { id: string; play_count: number; started_at: string; broadcast: { title: string } };
+
+/** 마이페이지 통계: 내 방송의 저장된 녹화와 재생 수(최신순) */
+export async function listMyRecordingPlays(ownerId: string): Promise<RecordingPlays[]> {
+  const { data, error } = await createAdminClient()
+    .from("recordings")
+    .select("id, play_count, started_at, broadcast:broadcasts!inner(title, owner_id)")
+    .eq("broadcast.owner_id", ownerId)
+    .eq("status", "ready")
+    .order("started_at", { ascending: false })
+    .returns<RecordingPlays[]>();
+  if (error) throw error;
+  return data;
 }
 
 /** 방송 상세의 녹화 상태 안내용 (방송당 녹화는 최대 1개) */

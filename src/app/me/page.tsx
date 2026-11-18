@@ -13,19 +13,28 @@ import { listFollowers, listFollowing } from "@/features/follows/queries";
 import { UnfollowButton } from "@/features/follows/unfollow-button";
 import { followerGrowth } from "@/features/follows/growth";
 import { GrowthChart } from "@/features/follows/growth-chart";
+import { listMyRecordingPlays } from "@/features/recordings/queries";
 
 /** 마이페이지: 내 방송, 받은·한 후원, 팔로워·팔로잉. 로그인한 본인 데이터만 서버에서 읽는다. */
 export default async function MyPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/me");
 
-  const [broadcasts, received, sent, followers, following] = await Promise.all([
+  const [broadcasts, received, sent, followers, following, plays] = await Promise.all([
     listBroadcastsByOwners([user.id]),
     listReceivedDonations(user.id),
     listSentDonations(user.id),
     listFollowers(user.id),
     listFollowing(user.id),
+    listMyRecordingPlays(user.id),
   ]);
+  // 0007 이전 방송·녹화는 기록이 없어 0이므로, 기록이 생긴 것만 보여준다
+  const peaks = broadcasts
+    .filter((b) => b.peak_viewers > 0)
+    .map((b) => ({ id: b.id, label: b.title, value: b.peak_viewers }));
+  const playRows = plays
+    .filter((r) => r.play_count > 0)
+    .map((r) => ({ id: r.id, label: `${r.broadcast.title} · ${formatDate(r.started_at)}`, value: r.play_count }));
   const receivedTotal = received.reduce((sum, d) => sum + d.amount, 0);
 
   return (
@@ -57,7 +66,10 @@ export default async function MyPage() {
                   {CATEGORY_LABEL[b.category]} · {formatDate(b.created_at)}
                 </span>
                 <div className="flex gap-2">
-                  <Link href={`/broadcasts/${b.id}/edit`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                  <Link
+                    href={`/broadcasts/${b.id}/edit`}
+                    className={buttonVariants({ variant: "outline", size: "sm" })}
+                  >
                     수정
                   </Link>
                   <DeleteBroadcastButton id={b.id} isLive={b.status === "live"} />
@@ -132,8 +144,23 @@ export default async function MyPage() {
         {followers.length === 0 ? (
           <Empty>팔로워가 생기면 날짜별 증가 그래프가 여기에 보여요.</Empty>
         ) : (
-          <GrowthChart points={followerGrowth(followers.map((f) => f.since), 14, new Date())} />
+          <GrowthChart
+            points={followerGrowth(
+              followers.map((f) => f.since),
+              14,
+              new Date(),
+            )}
+          />
         )}
+        <div className="grid gap-4 md:grid-cols-2">
+          <StatBars
+            title="방송별 최고 시청자 수"
+            unit="명"
+            rows={peaks}
+            empty="시청자가 들어온 방송이 생기면 여기에 보여요."
+          />
+          <StatBars title="다시보기 재생 수" unit="회" rows={playRows} empty="다시보기가 재생되면 여기에 보여요." />
+        </div>
       </Section>
     </div>
   );
@@ -153,6 +180,44 @@ function DonationRows({ records }: { records: DonationRecord[] }) {
       right={won(d.amount)}
     />
   ));
+}
+
+/** 항목별 값 막대(한 계열이라 범례 없이 제목이 이름). 값은 막대 옆 글자로 늘 보인다. */
+function StatBars({
+  title,
+  unit,
+  rows,
+  empty,
+}: {
+  title: string;
+  unit: string;
+  rows: { id: string; label: string; value: number }[];
+  empty: string;
+}) {
+  const max = Math.max(1, ...rows.map((r) => r.value));
+  return (
+    <div className="flex flex-col gap-3 rounded-sm border bg-card p-5">
+      <h3 className="font-bold">{title}</h3>
+      {rows.length === 0 ? (
+        <p className="text-sm text-muted-foreground">{empty}</p>
+      ) : (
+        <ul className="flex max-h-80 flex-col gap-3 overflow-y-auto">
+          {rows.map((r) => (
+            <li key={r.id} className="flex flex-col gap-1 text-sm">
+              <span className="flex justify-between gap-3">
+                <span className="min-w-0 truncate">{r.label}</span>
+                <span className="shrink-0 font-bold">
+                  {r.value.toLocaleString("ko-KR")}
+                  {unit}
+                </span>
+              </span>
+              <span className="h-2 rounded-r-[4px] bg-primary/80" style={{ width: `${(r.value / max) * 100}%` }} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 }
 
 function formatDate(iso: string) {

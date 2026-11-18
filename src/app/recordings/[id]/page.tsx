@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { OffAirScreen } from "@/features/broadcasts/off-air-screen";
-import { findRecording, formatDuration } from "@/features/recordings/queries";
+import { countRecordingPlay, findRecording, formatDuration } from "@/features/recordings/queries";
 import { ReplayPlayer } from "@/features/recordings/replay-player";
 
 export default async function RecordingPage({ params }: PageProps<"/recordings/[id]">) {
   const { id } = await params;
   const recording = await findRecording(id);
   if (!recording) notFound();
+  if (recording.status === "ready") await countRecordingPlay(recording.id);
 
   return (
     <div className="mx-auto max-w-4xl space-y-4">
