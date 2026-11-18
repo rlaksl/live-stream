@@ -19,7 +19,8 @@ export default async function RecordingPage({ params }: PageProps<"/recordings/[
       <div className="space-y-1">
         <h1 className="text-xl font-bold">{recording.broadcast.title}</h1>
         <p className="text-sm text-muted-foreground">
-          {recording.broadcast.owner.nickname} · {new Date(recording.started_at).toLocaleString("ko-KR")}
+          {recording.broadcast.owner.nickname} ·{" "}
+          {new Date(recording.started_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}
           {recording.ended_at && ` · ${formatDuration(recording.started_at, recording.ended_at)}`}
         </p>
         <Link href={`/broadcasts/${recording.broadcast_id}`} className="text-sm text-primary underline">

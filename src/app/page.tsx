@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+import { getCurrentUser } from "@/features/auth/current-user";
 import { cn } from "@/lib/utils";
 import { BroadcastCard } from "@/features/broadcasts/broadcast-card";
 import { CategoryChips } from "@/features/broadcasts/category-chips";
@@ -16,7 +17,7 @@ import { formatDuration, listRecordings } from "@/features/recordings/queries";
  * 처음 온 사람이 바로 영상을 볼 수 있도록, 방송 중이 없어도 다시보기를 대표 영상으로 보여준다.
  */
 export default async function HomePage() {
-  const [live, recordings] = await Promise.all([listBroadcasts("live"), listRecordings(5)]);
+  const [live, recordings, user] = await Promise.all([listBroadcasts("live"), listRecordings(5), getCurrentUser()]);
   const viewerCounts = await getViewerCounts(live.map((b) => b.id));
 
   const slides: Slide[] = [
@@ -39,9 +40,12 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col gap-12">
-      <section aria-label="대표 방송" className="grid items-stretch gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(320px,380px)]">
+      <section
+        aria-label="대표 방송"
+        className="grid items-stretch gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(320px,380px)]"
+      >
         <FeaturedCarousel slides={slides} />
-        <Intro replayHref={recordings[0] ? `/recordings/${recordings[0].id}` : "/recordings"} />
+        <Intro latestReplayId={recordings[0]?.id} loggedIn={!!user} />
       </section>
 
       <CategoryChips basePath="/broadcasts" />
@@ -67,7 +71,7 @@ export default async function HomePage() {
   );
 }
 
-function Intro({ replayHref }: { replayHref: string }) {
+function Intro({ latestReplayId, loggedIn }: { latestReplayId?: string; loggedIn: boolean }) {
   return (
     <div className="flex flex-col justify-center gap-6 rounded-sm border bg-card p-6 sm:p-8">
       {/* 랜딩: 통통 튀다 점점 작게 튀며 멈춘다 */}
@@ -85,11 +89,15 @@ function Intro({ replayHref }: { replayHref: string }) {
         <Link href="/broadcasts/new" className={cn(buttonVariants(), "h-auto px-[22px] py-3.5 text-base font-bold")}>
           내 방송 시작
         </Link>
-        <Link href={replayHref} className={cn(buttonVariants({ variant: "outline" }), "h-auto px-[22px] py-3.5 text-base")}>
-          다시보기 재생
+        {/* 녹화가 있으면 가장 최근 것을 바로 재생, 없으면 다시보기 목록으로 */}
+        <Link
+          href={latestReplayId ? `/recordings/${latestReplayId}` : "/recordings"}
+          className={cn(buttonVariants({ variant: "outline" }), "h-auto px-[22px] py-3.5 text-base")}
+        >
+          {latestReplayId ? "다시보기 재생" : "다시보기 둘러보기"}
         </Link>
       </div>
-      <p className="text-[13px] text-[#8a8a93]">로그인하지 않아도 시청할 수 있어요.</p>
+      {!loggedIn && <p className="text-[13px] text-[#8a8a93]">로그인하지 않아도 시청할 수 있어요.</p>}
     </div>
   );
 }

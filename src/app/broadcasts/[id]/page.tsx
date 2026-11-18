@@ -78,7 +78,8 @@ export default async function BroadcastPage({ params }: PageProps<"/broadcasts/[
               )}
             </OffAirScreen>
           )}
-          <DonationAlert broadcastId={broadcast.id} />
+          {/* 후원 알림과 "후원 음성" 버튼은 방송 중일 때만 */}
+          {broadcast.status === "live" && <DonationAlert broadcastId={broadcast.id} />}
         </div>
 
         <div className="flex flex-wrap items-start justify-between gap-4">

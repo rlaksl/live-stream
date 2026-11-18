@@ -31,7 +31,7 @@ export function FeaturedCarousel({ slides }: { slides: Slide[] }) {
     return (
       <div className="flex aspect-video flex-col items-center justify-center gap-4 rounded-sm border bg-[#18181c]">
         <Mascot face="surprised" size={140} />
-        <p className="text-sm text-muted-foreground">아직 방송이 없어요. 첫 방송을 시작해 보세요.</p>
+        <p className="text-sm text-muted-foreground">지금 방송 중인 콘텐츠가 없어요.</p>
       </div>
     );
   }

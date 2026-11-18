@@ -258,14 +258,15 @@ export function Studio({
               <span className="rounded-sm bg-[#2a2a30] px-2.5 py-1.5 text-[#d4d4d8]">미리보기 · 아직 송출 전</span>
             )}
           </div>
-          <DonationAlert broadcastId={broadcastId} />
+          {live && <DonationAlert broadcastId={broadcastId} />}
         </div>
 
         {phase === "setup" ? (
           <p className="text-sm text-muted-foreground">
-            {canShareScreen
+            {/* 고른 소스에 맞는 안내만 보인다 */}
+            {source === "screen"
               ? "화면 공유 시 공유 창에서 '탭 오디오 공유'(또는 '시스템 오디오 공유')를 켜면 탭 소리가 마이크와 함께 송출됩니다. 소리 송출은 Chrome·Edge 데스크톱에서 지원됩니다."
-              : "모바일에서는 카메라와 마이크로 방송합니다."}
+              : "미리보기 시작을 누르면 카메라와 마이크 권한을 묻습니다. 허용하면 미리보기와 방송 중에 '카메라 전환'으로 전면/후면 카메라를 바꿀 수 있습니다."}
           </p>
         ) : (
           <>

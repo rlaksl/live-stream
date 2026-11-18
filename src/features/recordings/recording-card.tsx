@@ -18,7 +18,11 @@ export function RecordingCard({ recording }: { recording: Recording & { url: str
         <span className="truncate font-medium group-hover:text-primary">{broadcast.title}</span>
         <span className="text-sm text-muted-foreground">
           {broadcast.owner.nickname} · {CATEGORY_LABEL[broadcast.category]} ·{" "}
-          {new Date(recording.started_at).toLocaleDateString("ko-KR", { month: "long", day: "numeric" })}
+          {new Date(recording.started_at).toLocaleDateString("ko-KR", {
+            timeZone: "Asia/Seoul",
+            month: "long",
+            day: "numeric",
+          })}
         </span>
       </div>
     </Link>
