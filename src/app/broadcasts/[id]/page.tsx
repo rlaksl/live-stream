@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { WatchAside } from "@/features/broadcasts/watch-aside";
+import { DonationAlert } from "@/features/donations/donation-alert";
 import { getCurrentUser } from "@/features/auth/current-user";
 import { DeleteBroadcastButton } from "@/features/broadcasts/delete-button";
 import { OffAirScreen } from "@/features/broadcasts/off-air-screen";
@@ -35,44 +36,50 @@ export default async function BroadcastPage({ params }: PageProps<"/broadcasts/[
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(340px,400px)]">
       <section aria-label="플레이어" className="flex min-w-0 flex-col gap-5">
-        {broadcast.status === "live" && <LivePlayer broadcastId={broadcast.id} />}
-        {broadcast.status === "waiting" && (
-          <OffAirScreen
-            face="sleepy"
-            label="대기 중"
-            title="곧 시작합니다"
-            message={
-              <>
-                방송자가 아직 송출을 시작하지 않았어요.
-                {broadcast.scheduled_at && (
-                  <>
-                    <br />
-                    예정 {formatKst(broadcast.scheduled_at)}
-                  </>
-                )}
-              </>
-            }
-          />
-        )}
-        {broadcast.status === "ended" && (
-          <OffAirScreen
-            face="dead"
-            label="NO SIGNAL"
-            title="방송이 종료되었습니다"
-            message={
-              recording?.status === "ready" ? "녹화된 방송은 다시보기에서 볼 수 있어요." : "다음 방송을 기다려 주세요."
-            }
-          >
-            {recording?.status === "ready" && (
-              <Link
-                href={`/recordings/${recording.id}`}
-                className={cn(buttonVariants(), "h-auto px-5 py-3 text-[15px] font-bold")}
-              >
-                다시보기 재생
-              </Link>
-            )}
-          </OffAirScreen>
-        )}
+        {/* 후원 알림 배너는 플레이어(또는 대기·종료 화면) 위에 겹쳐 띄운다 */}
+        <div className="relative">
+          {broadcast.status === "live" && <LivePlayer broadcastId={broadcast.id} />}
+          {broadcast.status === "waiting" && (
+            <OffAirScreen
+              face="sleepy"
+              label="대기 중"
+              title="곧 시작합니다"
+              message={
+                <>
+                  방송자가 아직 송출을 시작하지 않았어요.
+                  {broadcast.scheduled_at && (
+                    <>
+                      <br />
+                      예정 {formatKst(broadcast.scheduled_at)}
+                    </>
+                  )}
+                </>
+              }
+            />
+          )}
+          {broadcast.status === "ended" && (
+            <OffAirScreen
+              face="dead"
+              label="NO SIGNAL"
+              title="방송이 종료되었습니다"
+              message={
+                recording?.status === "ready"
+                  ? "녹화된 방송은 다시보기에서 볼 수 있어요."
+                  : "다음 방송을 기다려 주세요."
+              }
+            >
+              {recording?.status === "ready" && (
+                <Link
+                  href={`/recordings/${recording.id}`}
+                  className={cn(buttonVariants(), "h-auto px-5 py-3 text-[15px] font-bold")}
+                >
+                  다시보기 재생
+                </Link>
+              )}
+            </OffAirScreen>
+          )}
+          <DonationAlert broadcastId={broadcast.id} />
+        </div>
 
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex min-w-0 flex-col gap-2">

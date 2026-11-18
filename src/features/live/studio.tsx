@@ -22,6 +22,7 @@ import { Switch } from "@/components/ui/switch";
 import { formatKst } from "@/features/broadcasts/schedule";
 import { CATEGORY_LABEL, type Broadcast, type BroadcastStatus } from "@/features/broadcasts/types";
 import { cn } from "@/lib/utils";
+import { DonationAlert } from "@/features/donations/donation-alert";
 import { startBroadcastRecording, stopBroadcastRecording } from "@/features/recordings/actions";
 import { cancelStart, endBroadcast, getPublishConnection, startBroadcast } from "./actions";
 
@@ -257,6 +258,7 @@ export function Studio({
               <span className="rounded-sm bg-[#2a2a30] px-2.5 py-1.5 text-[#d4d4d8]">미리보기 · 아직 송출 전</span>
             )}
           </div>
+          <DonationAlert broadcastId={broadcastId} />
         </div>
 
         {phase === "setup" ? (
