@@ -172,7 +172,9 @@ function CommentItem({
           {comment.author.nickname}
         </span>
         <time className="text-xs text-muted-foreground">
+          {/* 서버(UTC)와 브라우저의 시간대가 달라도 같은 글자가 나오게 KST로 고정한다 */}
           {new Date(comment.created_at).toLocaleTimeString("ko-KR", {
+            timeZone: "Asia/Seoul",
             hour: "2-digit",
             minute: "2-digit",
           })}

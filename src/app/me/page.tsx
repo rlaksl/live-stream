@@ -59,7 +59,7 @@ export default async function MyPage() {
             {broadcasts.map((b) => (
               <li key={b.id} className="flex flex-wrap items-center gap-3 p-4">
                 <StatusBadge status={b.status} />
-                <Link href={`/broadcasts/${b.id}`} className="min-w-0 flex-1 truncate font-medium hover:text-primary">
+                <Link href={`/broadcasts/${b.id}`} className="min-w-0 flex-1 basis-48 truncate font-medium hover:text-primary">
                   {b.title}
                 </Link>
                 <span className="text-sm text-muted-foreground">
