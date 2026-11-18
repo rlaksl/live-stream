@@ -206,7 +206,7 @@ export function Studio({ broadcastId, initialStatus }: { broadcastId: string; in
         )}
         {phase === "live" && (
           <div className="absolute top-3 left-3 flex gap-2 text-xs font-bold text-white">
-            <span className="rounded-md bg-live px-2 py-1">● LIVE</span>
+            <span className="rounded-sm bg-primary px-2 py-1 font-pixel text-primary-foreground">LIVE</span>
             {recording && <span className="rounded-md bg-black/70 px-2 py-1">● REC (최대 10분)</span>}
           </div>
         )}

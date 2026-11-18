@@ -1,24 +1,23 @@
 /**
  * 마스코트(90년대 뚱뚱한 브라운관 TV) 도트 그림.
- * 40×34 칸의 격자에 몸체·안테나·노이즈·얼굴을 색으로 채운다. 이미지 파일 없이 전부 코드로 만든다.
+ * 40×34 칸의 격자에 몸체·안테나·노이즈·얼굴을 색으로 채운다. 아이보리 몸체, 은색 가는 안테나, 몸체 검정 외곽선 없음. 이미지 파일 없이 전부 코드로 만든다.
  * 캔버스 애니메이션(mascot.tsx)과 정지 SVG(app/mascot/[face])가 같은 함수를 쓴다.
  */
 
-export type MascotFace = "happy" | "sleepy" | "dead";
+export type MascotFace = "happy" | "sleepy" | "dead" | "surprised";
 export type Grid = (string | null)[][];
 
 export const WIDTH = 40;
 export const HEIGHT = 34;
 
 const COLOR = {
-  outline: "#140f0c",
-  body: "#5b4636",
-  bodyLight: "#7a604b",
-  bodyDark: "#3b2d23",
-  bezel: "#1d1916",
-  knob: "#c9b8a6",
-  knobDark: "#8c7a68",
-  antenna: "#9a8c80",
+  body: "#ede6d6",
+  bodyLight: "#f8f4ea",
+  bodyDark: "#cfc6b2",
+  bezel: "#111111",
+  knob: "#8a8478",
+  knobDark: "#5f5a50",
+  antenna: "#c9ccd1",
   face: "#ff8a1f",
   faceOutline: "#0b0908",
   magenta: "#ff2bd6",
@@ -52,6 +51,12 @@ const FACES: Record<MascotFace, [number, number][]> = {
     [19, 15], [23, 15], [20, 16], [22, 16], [21, 17], [20, 18], [22, 18], [19, 19], [23, 19],
     [13, 23], [14, 22], [15, 23], [16, 22], [17, 23], [18, 22], [19, 23],
   ],
+  // 놀란 눈 ㅇ0ㅇ: 동그란 두 눈과 동그랗게 벌린 입
+  surprised: [
+    [10, 15], [11, 15], [12, 15], [9, 16], [13, 16], [9, 17], [13, 17], [9, 18], [13, 18], [10, 19], [11, 19], [12, 19],
+    [20, 15], [21, 15], [22, 15], [19, 16], [23, 16], [19, 17], [23, 17], [19, 18], [23, 18], [20, 19], [21, 19], [22, 19],
+    [15, 22], [16, 22], [17, 22], [14, 23], [18, 23], [14, 24], [18, 24], [15, 25], [16, 25], [17, 25],
+  ],
 };
 
 /** 노이즈·얼굴을 제외한 TV 몸체. 매 프레임 같으므로 한 번만 만든다. */
@@ -64,7 +69,7 @@ const BODY: Grid = drawBody();
  */
 export function renderFrame(face: MascotFace, random: () => number, frame = 0): Grid {
   const grid = BODY.map((row) => [...row]);
-  const dim = face !== "happy";
+  const dim = face === "sleepy" || face === "dead";
 
   // 1) 굵은 픽셀 아날로그 노이즈 + 홀수 줄은 어둡게(주사선) + 천천히 내려가는 밝은 줄
   const rollY = SCREEN.y + (frame % (SCREEN.h * 3)) / 3;
@@ -103,18 +108,13 @@ function drawBody(): Grid {
     if (x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT) grid[y][x] = color;
   };
 
-  // 안테나: 몸체 위 두 갈래 + 끝의 둥근 공
-  line(18, 7, 11, 2, (x, y) => set(x, y, COLOR.antenna));
-  line(21, 7, 28, 2, (x, y) => set(x, y, COLOR.antenna));
-  for (const [x, y] of [[10, 1], [11, 1], [10, 2], [11, 2], [28, 1], [29, 1], [28, 2], [29, 2]]) {
-    set(x, y, COLOR.face);
-  }
-  roundRect(16, 6, 8, 3, 1, (x, y) => set(x, y, COLOR.outline));
+  // 안테나: 몸체 위로 가늘게 뻗은 은색 두 갈래
+  line(18, 7, 11, 1, (x, y) => set(x, y, COLOR.antenna));
+  line(21, 7, 28, 1, (x, y) => set(x, y, COLOR.antenna));
   roundRect(17, 7, 6, 2, 0, (x, y) => set(x, y, COLOR.bodyDark));
 
-  // 뚱뚱한 몸체: 테두리 → 몸통 → 위쪽 하이라이트, 아래쪽 그림자
-  roundRect(1, 8, 38, 25, 3, (x, y) => set(x, y, COLOR.outline));
-  roundRect(2, 9, 36, 23, 2, (x, y) => set(x, y, COLOR.body));
+  // 뚱뚱한 몸체(외곽선 없음): 몸통 → 위쪽 하이라이트, 아래쪽 그림자
+  roundRect(1, 8, 38, 25, 3, (x, y) => set(x, y, COLOR.body));
   for (let x = 4; x <= 35; x++) {
     set(x, 9, COLOR.bodyLight);
     set(x, 31, COLOR.bodyDark);
@@ -136,8 +136,8 @@ function drawBody(): Grid {
   for (const y of [25, 27, 29]) for (let x = 31; x <= 35; x++) set(x, y, COLOR.bodyDark);
 
   // 짧은 다리
-  for (let x = 5; x <= 9; x++) set(x, 33, COLOR.outline);
-  for (let x = 30; x <= 34; x++) set(x, 33, COLOR.outline);
+  for (let x = 5; x <= 9; x++) set(x, 33, COLOR.knob);
+  for (let x = 30; x <= 34; x++) set(x, 33, COLOR.knob);
 
   return grid;
 }

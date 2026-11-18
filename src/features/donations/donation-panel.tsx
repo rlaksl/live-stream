@@ -43,7 +43,7 @@ export function DonationPanel({ broadcastId, donate, initial }: Props) {
               <span className="font-bold">{d.donor.nickname}</span>
               <span className="font-bold text-primary">{won(d.amount)}</span>
             </div>
-            {d.message && <p className="mt-0.5 break-all whitespace-pre-wrap">{d.message}</p>}
+            {d.message && <p className="mt-0.5 whitespace-pre-wrap">{d.message}</p>}
           </li>
         ))}
       </ul>

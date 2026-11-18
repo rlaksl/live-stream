@@ -153,7 +153,7 @@ function CommentItem({
           </Button>
         </form>
       ) : (
-        <p className="mt-0.5 break-all whitespace-pre-wrap">{comment.body}</p>
+        <p className="mt-0.5 whitespace-pre-wrap">{comment.body}</p>
       )}
     </li>
   );

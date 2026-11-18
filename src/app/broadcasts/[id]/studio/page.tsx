@@ -17,7 +17,7 @@ export default async function StudioPage({ params }: PageProps<"/broadcasts/[id]
     <div className="mx-auto max-w-3xl space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         <StatusBadge status={broadcast.status} />
-        <h1 className="text-xl font-bold break-all">{broadcast.title}</h1>
+        <h1 className="text-xl font-bold">{broadcast.title}</h1>
         <Link href={`/broadcasts/${id}`} className="ml-auto text-sm text-primary underline">
           시청 화면 보기
         </Link>

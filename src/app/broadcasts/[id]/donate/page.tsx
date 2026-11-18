@@ -15,7 +15,7 @@ export default async function DonatePage({ params }: PageProps<"/broadcasts/[id]
     <div className="mx-auto max-w-xl space-y-6">
       <div className="space-y-1">
         <h1 className="text-2xl font-bold">{broadcast.owner.nickname}님에게 후원</h1>
-        <p className="text-sm break-all text-muted-foreground">{broadcast.title}</p>
+        <p className="text-sm text-muted-foreground">{broadcast.title}</p>
       </div>
       <DonateForm broadcastId={id} appUrl={process.env.APP_URL!} />
     </div>

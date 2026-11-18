@@ -5,13 +5,21 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* 라운드는 사이트 전체 4px. 칩·토글 같은 알약 모양만 rounded-full. */
+  --radius-xs: 4px;
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
+  --radius-2xl: 4px;
+  --radius-3xl: 4px;
+  --radius-4xl: 4px;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --font-pixel: var(--font-pixel);
-  --color-live: var(--live);
   /* 마스코트: 떨어져 통통 튀다가 점점 작게 튀며 멈춘다 (착지할 때 살짝 찌그러짐) */
   --animate-mascot-bounce: mascot-bounce 1.8s ease-in-out both;
   @keyframes mascot-bounce {
@@ -55,13 +63,6 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 :root {
@@ -88,7 +89,7 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
+  --radius: 4px;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -99,40 +100,39 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* 시안 색(docs/design/brdcst-design/DESIGN.md). 포인트는 브라운관 앰버 #FF8A1F 하나. */
 .dark {
-  --background: oklch(0.155 0.006 60);
-  --foreground: oklch(0.97 0.005 80);
-  --card: oklch(0.2 0.008 60);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  /* 브라운관 앰버 #FF8A1F */
-  --primary: oklch(0.74 0.18 55);
-  --primary-foreground: oklch(0.18 0.02 55);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: #0b0b0c;
+  --foreground: #f2f1ee;
+  --card: #121214;
+  --card-foreground: #f2f1ee;
+  --popover: #121214;
+  --popover-foreground: #f2f1ee;
+  --primary: #ff8a1f;
+  --primary-foreground: #111111;
+  --secondary: #1c1c20;
+  --secondary-foreground: #f2f1ee;
+  --muted: #1c1c20;
+  --muted-foreground: #a3a3ab;
+  --accent: #1c1c20;
+  --accent-foreground: #f2f1ee;
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.74 0.18 55);
-  --live: oklch(0.64 0.23 25);
+  --border: #26262a;
+  --input: #3a3a40;
+  --ring: #ff8a1f;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar: #121214;
+  --sidebar-foreground: #f2f1ee;
+  --sidebar-primary: #ff8a1f;
+  --sidebar-primary-foreground: #111111;
+  --sidebar-accent: #1c1c20;
+  --sidebar-accent-foreground: #f2f1ee;
+  --sidebar-border: #26262a;
+  --sidebar-ring: #ff8a1f;
 }
 
 @layer base {
@@ -141,6 +141,9 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* 한글은 단어 단위로 줄바꿈하고, 너무 긴 단어만 끊는다 */
+    word-break: keep-all;
+    overflow-wrap: anywhere;
   }
   button:not(:disabled), [role="button"]:not(:disabled) {
     cursor: pointer;
@@ -151,4 +154,12 @@
   .animate-mascot-bounce {
     transform-origin: 50% 100%;
   }
+}
+/* 형광펜: 주황 배경 + 검정 글씨. 방송자 닉네임(댓글), 후원자 닉네임(알림), 탭 오디오 안내에 쓴다. */
+@utility highlight {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  padding: 1px 6px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }

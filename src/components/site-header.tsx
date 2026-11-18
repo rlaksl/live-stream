@@ -3,59 +3,44 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getCurrentUser } from "@/features/auth/current-user";
 import { signOut } from "@/features/auth/actions";
+import { MainNav } from "./main-nav";
 
+const headerButton = "h-10 px-4 text-[15px]";
+
+/** 로고 · 주 메뉴 · 로그인/방송하기. 좁은 화면에서는 메뉴가 아랫줄로 내려간다. */
 export async function SiteHeader() {
   const user = await getCurrentUser();
 
   return (
     <header className="border-b border-border">
-      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-3 px-4">
-        <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="BRDCST 홈">
-          {/* 좁은 휴대폰 화면에서는 메뉴 자리를 위해 그림을 숨기고 글자 로고만 둔다 */}
-          {/* eslint-disable-next-line @next/next/no-img-element -- 코드로 만든 작은 SVG라 최적화가 필요 없다 */}
-          <img
-            src="/mascot/happy.svg"
-            alt=""
-            width={36}
-            height={31}
-            className="hidden min-[400px]:block"
-            style={{ imageRendering: "pixelated" }}
-          />
-          <span className="flex flex-col leading-none">
-            <span className="font-pixel text-xl font-bold tracking-wider text-primary">BRDCST</span>
-            <span className="font-pixel text-[10px] tracking-[0.3em] text-muted-foreground">
-              broadcast
-            </span>
-          </span>
+      <div className="mx-auto flex w-full max-w-[1360px] flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-10">
+        <Link href="/" className="flex flex-col leading-none" aria-label="BRDCST 홈">
+          <span className="font-pixel text-[22px] tracking-wider text-primary">BRDCST</span>
+          <span className="mt-1 font-pixel text-[10px] tracking-[0.3em] text-muted-foreground">broadcast</span>
         </Link>
 
-        <nav className="flex items-center gap-1 text-sm sm:gap-2">
-          <Link href="/schedule" className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "px-2")}>
-            편성표
-          </Link>
+        <MainNav />
+
+        <div className="flex items-center gap-2">
           {user ? (
             <>
-              <Link href="/broadcasts/new" className={buttonVariants({ size: "sm" })}>
-                방송하기
-              </Link>
-              <span className="hidden text-muted-foreground sm:inline">{user.nickname}</span>
+              <span className="hidden text-sm text-muted-foreground sm:inline">{user.nickname}</span>
               <form action={signOut}>
-                <button type="submit" className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "px-2")}>
+                <button type="submit" className={cn(buttonVariants({ variant: "ghost" }), headerButton, "px-3")}>
                   로그아웃
                 </button>
               </form>
             </>
           ) : (
-            <>
-              <Link href="/login" className={buttonVariants({ variant: "ghost", size: "sm" })}>
-                로그인
-              </Link>
-              <Link href="/signup" className={buttonVariants({ size: "sm" })}>
-                회원가입
-              </Link>
-            </>
+            <Link href="/login" className={cn(buttonVariants({ variant: "outline" }), headerButton)}>
+              로그인
+            </Link>
           )}
-        </nav>
+          {/* 비로그인이면 방송 만들기 화면이 로그인으로 보내고, 로그인 후 다시 돌아온다 */}
+          <Link href="/broadcasts/new" className={cn(buttonVariants(), headerButton, "font-bold")}>
+            방송하기
+          </Link>
+        </div>
       </div>
     </header>
   );

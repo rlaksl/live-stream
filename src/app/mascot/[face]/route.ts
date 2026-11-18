@@ -1,6 +1,6 @@
 import { renderFrame, seededRandom, toSvg, type MascotFace } from "@/features/mascot/pixels";
 
-const FACES: MascotFace[] = ["happy", "sleepy", "dead"];
+const FACES: MascotFace[] = ["happy", "sleepy", "dead", "surprised"];
 
 export const dynamicParams = false;
 export const generateStaticParams = () => FACES.map((face) => ({ face: `${face}.svg` }));

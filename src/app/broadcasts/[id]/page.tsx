@@ -45,7 +45,7 @@ export default async function BroadcastPage({ params }: PageProps<"/broadcasts/[
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <StatusBadge status={broadcast.status} />
-            <h1 className="text-xl font-bold break-all">{broadcast.title}</h1>
+            <h1 className="text-xl font-bold">{broadcast.title}</h1>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <p className="text-sm text-muted-foreground">
