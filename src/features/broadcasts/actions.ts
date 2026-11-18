@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase";
 import { toActionError } from "@/lib/app-error";
 import { getCurrentUser, requireUser } from "@/features/auth/current-user";
 import { endLive } from "@/features/live/end-live";
+import { deleteRecordingFiles } from "@/features/recordings/egress";
 import { assertOwner } from "./policy";
 import { getBroadcast } from "./queries";
 
@@ -61,13 +62,14 @@ export async function updateBroadcast(
   redirect(`/broadcasts/${id}`);
 }
 
-/** 방송 중이면 먼저 종료하고 삭제한다. 댓글은 함께 지워지고 후원 기록은 남는다. */
+/** 방송 중이면 먼저 종료하고 삭제한다. 댓글·녹화(파일 포함)는 함께 지워지고 후원 기록은 남는다. */
 export async function deleteBroadcast(id: string): Promise<BroadcastFormState> {
   try {
     const broadcast = await getBroadcast(id);
     assertOwner(await getCurrentUser(), broadcast);
 
     if (broadcast.status === "live") await endLive(id);
+    await deleteRecordingFiles(id);
     const { error } = await createAdminClient().from("broadcasts").delete().eq("id", id);
     if (error) throw error;
   } catch (error) {

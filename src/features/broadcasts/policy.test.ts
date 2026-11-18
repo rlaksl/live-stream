@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { AppError } from "@/lib/app-error";
 import type { BroadcastStatus } from "./types";
-import { assertCanEnd, assertCanPublish, assertCanStart, assertCanWatch, assertOwner } from "./policy";
+import { assertCanEnd, assertCanPublish, assertCanRecord, assertCanStart, assertCanWatch, assertOwner } from "./policy";
 
 const owner = { id: "owner", nickname: "방송자" };
 const other = { id: "other", nickname: "다른사람" };
@@ -65,5 +65,18 @@ describe("LiveKit 시청 토큰 (구독 전용)", () => {
   it("대기·종료는 409", () => {
     expect(result(() => assertCanWatch(broadcast("waiting")))).toBe(409);
     expect(result(() => assertCanWatch(broadcast("ended")))).toBe(409);
+  });
+});
+
+describe("녹화 시작·중지", () => {
+  const live = (record_enabled: boolean) => ({ ...broadcast("live"), record_enabled });
+  it("비로그인 401, 다른 사용자 403", () => {
+    expect(result(() => assertCanRecord(null, live(true)))).toBe(401);
+    expect(result(() => assertCanRecord(other, live(true)))).toBe(403);
+  });
+  it("소유자 · 방송 중 · 녹화 켬만 허용", () => {
+    expect(result(() => assertCanRecord(owner, live(true)))).toBe("ok");
+    expect(result(() => assertCanRecord(owner, live(false)))).toBe(409);
+    expect(result(() => assertCanRecord(owner, { ...broadcast("ended"), record_enabled: true }))).toBe(409);
   });
 });

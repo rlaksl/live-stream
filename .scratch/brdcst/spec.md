@@ -75,12 +75,12 @@
 
 ## 녹화 (ADR-0002)
 
-- LiveKit Participant egress를 HLS 조각으로 Supabase Storage(S3 호환, 서울 `ap-northeast-2`)에 저장한다. 무료 요금제에서 S3 protocol이 켜져 있음을 확인했다(2026-11-18). R2는 쓰지 않는다. LiveKit이 이 엔드포인트에 실제로 업로드되는지는 티켓 07에서 확인한다.
+- LiveKit `StartEgress`(MediaSource: 방송자 영상, 오디오는 방송자의 모든 트랙을 섞음)를 HLS 조각으로 Supabase Storage(S3 호환, 서울 `ap-northeast-2`)에 저장한다. 무료 요금제에서 S3 protocol이 켜져 있음을 확인했다(2026-11-18). R2는 쓰지 않는다. LiveKit이 이 엔드포인트에 실제로 업로드되는지는 티켓 07에서 확인한다.
 - 녹화 토글을 켠 방송만, 방송 시작 시 egress를 시작한다. 최대 10분이며, 그 뒤 녹화만 중지한다.
-- egress 웹훅(`egress_ended`)으로 녹화 상태를 `ready` 또는 `failed`로 바꾼다. 녹화가 실패해도 송출은 계속된다.
+- egress 웹훅(`egress_ended`)으로 녹화 상태를 `ready` 또는 `failed`로 바꾼다. 웹훅이 오지 않은 경우를 대비해, 저장 중인 녹화를 화면에 보여줄 때 LiveKit에 결과를 직접 조회한다. 녹화가 실패해도 송출은 계속된다.
 - 재생은 `hls.js`로 한다. Safari는 기본 재생을 쓴다.
 - LiveKit 녹화 변환 한도는 월 60분이다. 개발 테스트는 1분 내외로 하고, 시연용 녹화 1~2개를 미리 만들어 둔다.
-- **확인 필수:** 탭 소리와 마이크 두 오디오 트랙이 모두 녹화되는지 확인한다. 안 되면 방식을 바꿀지 사용자에게 묻는다.
+- **확인 완료(2026-11-18):** 탭 소리와 마이크 두 오디오 트랙이 모두 녹화된다 (Participant egress는 마이크가 빠져 MediaSource로 바꿨다).
 
 ## 댓글
 

@@ -4,6 +4,8 @@ import { BroadcastCard } from "@/features/broadcasts/broadcast-card";
 import { listBroadcasts } from "@/features/broadcasts/queries";
 import { getViewerCounts } from "@/features/live/viewer-counts";
 import { Mascot } from "@/features/mascot/mascot";
+import { RecordingCard } from "@/features/recordings/recording-card";
+import { listRecordings } from "@/features/recordings/queries";
 
 const TABS = [
   { key: "live", label: "방송 중" },
@@ -39,7 +41,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
         ))}
       </nav>
 
-      {tab === "replays" ? <p className="text-muted-foreground">녹화가 아직 없습니다.</p> : <BroadcastList filter={tab} />}
+      {tab === "replays" ? <RecordingList /> : <BroadcastList filter={tab} />}
     </div>
   );
 }
@@ -60,6 +62,24 @@ async function BroadcastList({ filter }: { filter: "live" | "all" }) {
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {broadcasts.map((b) => (
         <BroadcastCard key={b.id} broadcast={b} viewers={viewerCounts.get(b.id)} />
+      ))}
+    </div>
+  );
+}
+
+async function RecordingList() {
+  const recordings = await listRecordings();
+  if (recordings.length === 0) {
+    return (
+      <p className="py-10 text-center text-muted-foreground">
+        저장된 녹화가 없습니다. 방송을 시작할 때 &apos;녹화하기&apos;를 켜면 다시보기에 저장됩니다.
+      </p>
+    );
+  }
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {recordings.map((r) => (
+        <RecordingCard key={r.id} recording={r} />
       ))}
     </div>
   );

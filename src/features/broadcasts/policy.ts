@@ -37,6 +37,14 @@ export function assertCanPublish(user: CurrentUser | null, broadcast: BroadcastR
   }
 }
 
+/** 녹화 시작·중지: 송출과 같은 조건 + 방송 시작 때 녹화를 켠 방송만 */
+export function assertCanRecord(user: CurrentUser | null, broadcast: BroadcastRef & Pick<Broadcast, "record_enabled">) {
+  assertCanPublish(user, broadcast);
+  if (!broadcast.record_enabled) {
+    throw new AppError(409, "녹화를 켜고 시작한 방송만 녹화할 수 있습니다.");
+  }
+}
+
 /** 시청 토큰(구독 전용): 누구나, 방송 중일 때만. 종료된 방에 들어가 방이 다시 생기는 것을 막는다. */
 export function assertCanWatch(broadcast: BroadcastRef) {
   if (broadcast.status !== "live") {

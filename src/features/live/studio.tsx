@@ -19,9 +19,13 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import type { BroadcastStatus } from "@/features/broadcasts/types";
+import { startBroadcastRecording, stopBroadcastRecording } from "@/features/recordings/actions";
 import { endBroadcast, getPublishConnection, startBroadcast } from "./actions";
 
 type Source = "screen" | "camera";
+
+/** 녹화 최대 길이. LiveKit 무료 녹화 한도(월 60분)를 아끼기 위해 10분으로 제한한다. (docs/adr/0002) */
+const MAX_RECORDING_MS = 10 * 60 * 1000;
 type Phase = "setup" | "preview" | "live" | "ended";
 
 /**
@@ -40,9 +44,11 @@ export function Studio({ broadcastId, initialStatus }: { broadcastId: string; in
   const [tracks, setTracks] = useState<LocalTrack[]>([]);
   const [recordEnabled, setRecordEnabled] = useState(false);
   const [micMuted, setMicMuted] = useState(false);
+  const [recording, setRecording] = useState(false);
   const [busy, setBusy] = useState(false);
   const roomRef = useRef<Room | null>(null);
   const tracksRef = useRef<LocalTrack[]>([]);
+  const recordTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   tracksRef.current = tracks;
   const previewRef = useRef<HTMLVideoElement>(null);
 
@@ -62,6 +68,7 @@ export function Studio({ broadcastId, initialStatus }: { broadcastId: string; in
     return () => {
       roomRef.current?.disconnect();
       tracksRef.current.forEach((t) => t.stop());
+      clearTimeout(recordTimerRef.current);
     };
   }, []);
 
@@ -109,6 +116,8 @@ export function Studio({ broadcastId, initialStatus }: { broadcastId: string; in
       videoTrack?.on(TrackEvent.Ended, () => void stop());
       setPhase("live");
       router.refresh();
+
+      if (recordEnabled) await startRecordingFor10Minutes();
     } catch (error) {
       toast.error((error as Error).message);
     } finally {
@@ -116,13 +125,29 @@ export function Studio({ broadcastId, initialStatus }: { broadcastId: string; in
     }
   }
 
+  async function startRecordingFor10Minutes() {
+    const result = await startBroadcastRecording(broadcastId);
+    if ("error" in result) {
+      toast.error(result.error);
+      return;
+    }
+    setRecording(true);
+    recordTimerRef.current = setTimeout(async () => {
+      await stopBroadcastRecording(broadcastId);
+      setRecording(false);
+      toast.info("녹화 최대 길이(10분)에 도달해 녹화를 멈췄습니다. 방송은 계속됩니다.");
+    }, MAX_RECORDING_MS);
+  }
+
   async function stop() {
     setBusy(true);
+    clearTimeout(recordTimerRef.current);
     const result = await endBroadcast(broadcastId);
     if ("error" in result) toast.error(result.error);
     await roomRef.current?.disconnect();
     tracks.forEach((t) => t.stop());
     setTracks([]);
+    setRecording(false);
     setPhase("ended");
     setBusy(false);
     router.refresh();
@@ -162,9 +187,10 @@ export function Studio({ broadcastId, initialStatus }: { broadcastId: string; in
           </div>
         )}
         {phase === "live" && (
-          <span className="absolute top-3 left-3 rounded-md bg-live px-2 py-1 text-xs font-bold text-white">
-            ● LIVE
-          </span>
+          <div className="absolute top-3 left-3 flex gap-2 text-xs font-bold text-white">
+            <span className="rounded-md bg-live px-2 py-1">● LIVE</span>
+            {recording && <span className="rounded-md bg-black/70 px-2 py-1">● REC (최대 10분)</span>}
+          </div>
         )}
       </div>
 

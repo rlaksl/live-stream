@@ -7,10 +7,15 @@ import { OffAirScreen } from "@/features/broadcasts/off-air-screen";
 import { findBroadcast } from "@/features/broadcasts/queries";
 import { StatusBadge } from "@/features/broadcasts/status-badge";
 import { LivePlayer } from "@/features/live/live-player";
+import { findRecordingOfBroadcast } from "@/features/recordings/queries";
 
 export default async function BroadcastPage({ params }: PageProps<"/broadcasts/[id]">) {
   const { id } = await params;
-  const [broadcast, user] = await Promise.all([findBroadcast(id), getCurrentUser()]);
+  const [broadcast, user, recording] = await Promise.all([
+    findBroadcast(id),
+    getCurrentUser(),
+    findRecordingOfBroadcast(id),
+  ]);
   if (!broadcast) notFound();
   const isOwner = user?.id === broadcast.owner_id;
 
@@ -27,6 +32,7 @@ export default async function BroadcastPage({ params }: PageProps<"/broadcasts/[
             <h1 className="text-xl font-bold break-all">{broadcast.title}</h1>
           </div>
           <p className="text-sm text-muted-foreground">{broadcast.owner.nickname}</p>
+          {recording && <RecordingNotice id={recording.id} status={recording.status} />}
           {broadcast.description && (
             <p className="text-sm whitespace-pre-wrap">{broadcast.description}</p>
           )}
@@ -49,5 +55,20 @@ export default async function BroadcastPage({ params }: PageProps<"/broadcasts/[
 
       <aside className="space-y-6">{/* 댓글(티켓 08)·후원(티켓 09) */}</aside>
     </div>
+  );
+}
+
+function RecordingNotice({ id, status }: { id: string; status: "recording" | "ready" | "failed" }) {
+  if (status === "ready") {
+    return (
+      <Link href={`/recordings/${id}`} className={buttonVariants({ variant: "secondary", size: "sm" })}>
+        ▶ 녹화 다시보기
+      </Link>
+    );
+  }
+  return (
+    <p className="text-sm text-muted-foreground">
+      {status === "recording" ? "● 녹화 중이거나 저장하는 중입니다." : "녹화 저장에 실패했습니다."}
+    </p>
   );
 }
