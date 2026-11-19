@@ -1,10 +1,10 @@
 /**
  * 사용자에게 보여줄 수 있는 실패. status는 Route Handler에서 HTTP 상태 코드로 그대로 쓴다.
- * 401: 로그인 필요, 403: 권한 없음, 404: 없음, 409: 현재 상태에서 불가, 400: 입력 오류
+ * 401: 로그인 필요, 403: 권한 없음, 404: 없음, 409: 현재 상태에서 불가, 400: 입력 오류, 502: 외부 서비스(LiveKit 등) 실패
  */
 export class AppError extends Error {
   constructor(
-    public readonly status: 400 | 401 | 403 | 404 | 409,
+    public readonly status: 400 | 401 | 403 | 404 | 409 | 502,
     message: string,
   ) {
     super(message);

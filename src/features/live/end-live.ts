@@ -1,4 +1,6 @@
 import "server-only";
+import { ServerError } from "livekit-server-sdk";
+import { AppError } from "@/lib/app-error";
 import { createAdminClient } from "@/lib/supabase";
 import { roomService } from "@/lib/livekit";
 import { stopRecording } from "@/features/recordings/egress";
@@ -17,8 +19,14 @@ export async function endLive(broadcastId: string) {
   if (error) throw error;
 
   await stopRecording(broadcastId);
-  // 방이 이미 없으면(모두 나가서 자동으로 닫힌 경우) LiveKit이 에러를 주므로 무시한다
-  await roomService()
-    .deleteRoom(broadcastId)
-    .catch(() => {});
+  try {
+    await roomService().deleteRoom(broadcastId);
+  } catch (error) {
+    // 방이 이미 없으면(모두 나가서 자동으로 닫힌 경우) LiveKit이 404 not_found를 준다. 정상 종료다.
+    if (error instanceof ServerError && error.code === "not_found") return;
+    // 그 밖의 실패는 시청 연결이 남을 수 있으니 숨기지 않는다. 상태는 이미 `종료`라 다시 종료되지 않고,
+    // 방송자가 나갈 때 오는 웹훅(participant_left)이 이 함수를 다시 불러 방 삭제를 재시도한다.
+    console.error("LiveKit 방 삭제 실패", broadcastId, error);
+    throw new AppError(502, "방송은 종료했지만 시청 연결을 바로 끊지 못했습니다. 시청 화면은 잠시 뒤 정리됩니다.");
+  }
 }

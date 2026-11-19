@@ -25,7 +25,8 @@ import { CATEGORY_LABEL, type Broadcast, type BroadcastStatus } from "@/features
 import { cn } from "@/lib/utils";
 import { DonationAlert } from "@/features/donations/donation-alert";
 import { startBroadcastRecording, stopBroadcastRecording } from "@/features/recordings/actions";
-import { cancelStart, endBroadcast, getPublishConnection, startBroadcast } from "./actions";
+import { cancelStart, endBroadcast, getBroadcastStatus, getPublishConnection, startBroadcast } from "./actions";
+import { revertFailedStart } from "./start-recovery";
 
 type Source = "screen" | "camera";
 
@@ -91,25 +92,22 @@ export function Studio({
 
   async function preview() {
     setBusy(true);
+    // 얻은 트랙을 바로 모아 둔다. 마이크 권한 거부처럼 중간에 실패하면 먼저 얻은 화면·카메라도 꺼야 한다.
+    const acquired: LocalTrack[] = [];
     try {
-      const media =
-        source === "screen"
-          ? [
-              // 탭·시스템 소리는 화면 공유 창의 "오디오 공유"를 켜야 들어온다 (Chrome·Edge)
-              ...(await createLocalScreenTracks({
-                audio: true,
-                systemAudio: "include",
-                selfBrowserSurface: "exclude",
-              })),
-              await createLocalAudioTrack({ echoCancellation: true, noiseSuppression: true }),
-            ]
-          : [
-              await createLocalVideoTrack({ facingMode: "user", resolution: { width: 1280, height: 720 } }),
-              await createLocalAudioTrack({ echoCancellation: true, noiseSuppression: true }),
-            ];
-      setTracks(media);
+      if (source === "screen") {
+        // 탭·시스템 소리는 화면 공유 창의 "오디오 공유"를 켜야 들어온다 (Chrome·Edge)
+        acquired.push(
+          ...(await createLocalScreenTracks({ audio: true, systemAudio: "include", selfBrowserSurface: "exclude" })),
+        );
+      } else {
+        acquired.push(await createLocalVideoTrack({ facingMode: "user", resolution: { width: 1280, height: 720 } }));
+      }
+      acquired.push(await createLocalAudioTrack({ echoCancellation: true, noiseSuppression: true }));
+      setTracks(acquired);
       setPhase("preview");
     } catch (error) {
+      acquired.forEach((t) => t.stop());
       toast.error(`장치를 사용할 수 없습니다: ${(error as Error).message}`);
     } finally {
       setBusy(false);
@@ -153,16 +151,28 @@ export function Studio({
       if (recordEnabled) await startRecordingFor10Minutes();
     } catch (error) {
       // 상태를 먼저 되돌린 뒤 연결을 끊는다. 순서가 바뀌면 웹훅(방송자 이탈)이 방송을 종료시킨다.
+      // 되돌리기에 실패하면 화면만 `대기`로 바꾸지 않고 서버의 실제 상태를 다시 읽어 표시한다.
+      let restoreFailed = false;
+      let serverStatus: BroadcastStatus | null = null;
       if (startedHere) {
-        await cancelStart(broadcastId);
-        setStatus("waiting");
+        const result = await revertFailedStart(
+          () => cancelStart(broadcastId),
+          () => getBroadcastStatus(broadcastId),
+        );
+        restoreFailed = !result.reverted;
+        serverStatus = result.status;
+        if (serverStatus) setStatus(serverStatus);
       }
       await room?.disconnect();
       tracks.forEach((t) => t.stop());
       setTracks([]);
-      setPhase("setup");
+      setPhase(serverStatus === "ended" ? "ended" : "setup");
       router.refresh();
-      toast.error(`송출을 시작하지 못했습니다. 다시 시도하세요. (${(error as Error).message})`);
+      toast.error(
+        restoreFailed
+          ? "시작 상태 복구에 실패했습니다. 상태를 다시 확인해 주세요."
+          : `송출을 시작하지 못했습니다. 다시 시도하세요. (${(error as Error).message})`,
+      );
     } finally {
       setBusy(false);
     }

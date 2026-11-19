@@ -3,11 +3,19 @@ import { roomService } from "@/lib/livekit";
 import { createAdminClient } from "@/lib/supabase";
 import { isPublisherIdentity } from "./identity";
 
-/** 방송 id → 현재 시청자 수 (방 참가자에서 방송자 1명을 뺀 값) */
+/**
+ * 방송 id → 현재 시청자 수 (방 참가자에서 방송자 1명을 뺀 값).
+ * LiveKit 조회가 실패해도 방송 목록은 보여야 하므로 빈 결과를 돌려준다(카드에 시청자 수만 빠진다).
+ */
 export async function getViewerCounts(broadcastIds: string[]): Promise<Map<string, number>> {
   if (broadcastIds.length === 0) return new Map();
-  const rooms = await roomService().listRooms(broadcastIds);
-  return new Map(rooms.map((room) => [room.name, Math.max(0, room.numParticipants - 1)]));
+  try {
+    const rooms = await roomService().listRooms(broadcastIds);
+    return new Map(rooms.map((room) => [room.name, Math.max(0, room.numParticipants - 1)]));
+  } catch (error) {
+    console.error("LiveKit 시청자 수 조회 실패", error);
+    return new Map();
+  }
 }
 
 /** 시청자가 들어올 때마다 지금 시청자 수(방송자 제외)를 세어 방송의 최고 시청자 수를 갱신한다. */

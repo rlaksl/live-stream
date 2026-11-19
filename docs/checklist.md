@@ -28,14 +28,15 @@
 ### 방송 시작과 종료 시 송출 연결을 생성하고 종료한다
 
 - 시작: 서버 액션 `startBroadcast`가 소유자·`대기` 상태를 확인하고 `방송 중`으로 바꾼 뒤, `getPublishConnection`이 송출 토큰(`canPublish: true`)을 발급해 LiveKit에 연결합니다.
-- 시작 실패: LiveKit 연결·트랙 전송이 실패하면 `cancelStart`가 상태를 `대기`로 되돌린 뒤 연결을 끊고 장치를 정리합니다. 같은 화면에서 다시 시작할 수 있습니다. 두 탭이 동시에 시작하면 상태를 먼저 바꾼 탭만 송출로 넘어가고 다른 탭은 409를 받습니다.
-- 종료: `endBroadcast` → `endLive`가 상태를 `종료`로 바꾸고 녹화를 멈춘 뒤 **LiveKit 방을 삭제해 송출·시청 연결을 끊습니다.**
+- 시작 실패: LiveKit 연결·트랙 전송이 실패하면 `cancelStart`가 상태를 `대기`로 되돌린 뒤 연결을 끊고 장치를 정리합니다. 같은 화면에서 다시 시작할 수 있습니다. 되돌리기 자체가 실패하면 화면만 `대기`로 바꾸지 않고 서버의 실제 상태를 다시 읽어 표시하며 "시작 상태 복구에 실패했습니다. 상태를 다시 확인해 주세요."를 안내합니다(`revertFailedStart`, 테스트 `src/features/live/start-recovery.test.ts`). 두 탭이 동시에 시작하면 상태를 먼저 바꾼 탭만 송출로 넘어가고 다른 탭은 409를 받습니다.
+- 종료: `endBroadcast` → `endLive`가 상태를 `종료`로 바꾸고 녹화를 멈춘 뒤 **LiveKit 방을 삭제해 송출·시청 연결을 끊습니다.** 방이 이미 없으면(404 `not_found`) 정상으로 보고, 그 밖의 삭제 실패는 숨기지 않고 알립니다(방송자 이탈 웹훅이 다시 삭제를 시도). 테스트 `src/features/live/external-failures.test.ts`.
 - 코드: `src/features/live/actions.ts` (`startBroadcast`, `cancelStart`, `endBroadcast`, `getPublishConnection`), `src/features/live/studio.tsx` (`goLive`), `src/features/live/end-live.ts` (`endLive`), `src/features/live/token.ts` (`createLiveToken`)
 
 ## 모바일 방송
 
 ### 휴대폰 카메라 영상과 마이크 음성을 함께 실시간 송출한다 / 휴대폰 마이크 음성을 함께 송출한다
 
+- 미리보기에서 화면·카메라를 얻은 뒤 마이크 권한이 거부되면, 먼저 얻은 트랙도 모두 멈춥니다(카메라 표시등·화면 공유가 남지 않음).
 - 터치 기기(`pointer: coarse`)이거나 화면 공유를 지원하지 않으면 `카메라` 소스가 기본입니다. `createLocalVideoTrack`(카메라) + `createLocalAudioTrack`(마이크)을 송출합니다.
 - 방송 중 전면·후면 카메라 전환(`restartTrack({ facingMode })`)과 마이크 끄기/켜기를 제공합니다.
 - 카메라는 여러 화질 동시 전송(simulcast)을 끄고 **720p 한 줄기**(`VideoPresets.h720`)로 송출합니다(휴대폰 부담을 줄임). 화면 공유는 기본 simulcast를 유지합니다. 코드: `src/features/live/studio.tsx` (`goLive`의 `publishTrack` 옵션)
@@ -56,7 +57,7 @@
 
 ### 방송 목록과 상세 화면, PC·모바일에서 송출한 방송을 각각 다른 기기에서 수신·재생
 
-- 홈: 대표 영상 캐러셀(방송 중 → 최근 다시보기, 화살표·점) + 소개 패널(내 방송 시작) → 카테고리 칩 → 방송 중(시청자 수, 없으면 놀란 눈 마스코트 빈 상태) → 최근 다시보기(실제 녹화 프레임 썸네일) — `src/app/page.tsx`, `src/features/home/featured-carousel.tsx`, `src/features/broadcasts/category-chips.tsx`. 전체 방송(최신순, 카테고리 필터) `src/app/broadcasts/page.tsx`, 카테고리 목록 `src/features/broadcasts/types.ts`(DB check 제약 `supabase/migrations/0004_broadcast_category.sql`), 시청자 수 `src/features/live/viewer-counts.ts`
+- 홈: 대표 영상 캐러셀(방송 중 → 최근 다시보기, 화살표·점) + 소개 패널(내 방송 시작) → 카테고리 칩 → 방송 중(시청자 수, 없으면 놀란 눈 마스코트 빈 상태) → 최근 다시보기(실제 녹화 프레임 썸네일) — `src/app/page.tsx`, `src/features/home/featured-carousel.tsx`, `src/features/broadcasts/category-chips.tsx`. 전체 방송(최신순, 카테고리 필터) `src/app/broadcasts/page.tsx`, 카테고리 목록 `src/features/broadcasts/types.ts`(DB check 제약 `supabase/migrations/0004_broadcast_category.sql`), 시청자 수 `src/features/live/viewer-counts.ts`(LiveKit 조회가 실패해도 카드는 시청자 수 없이 표시)
 - 상세: 상태별 화면(대기·방송 중·종료), 방송자 정보와 팔로워 수, 옆(모바일은 아래)에 후원 합계·댓글 — `src/app/broadcasts/[id]/page.tsx`, `src/features/broadcasts/watch-aside.tsx`
 - 시청: 로그인 없이 구독 전용 토큰(`getViewerConnection`)으로 재생 — `src/features/live/live-player.tsx`
 

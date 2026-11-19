@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/features/auth/current-user";
 import {
   assertCanEnd,
   assertCanPublish,
+  assertOwner,
   assertCanStart,
   assertCanWatch,
 } from "@/features/broadcasts/policy";
@@ -57,6 +58,17 @@ export async function cancelStart(id: string) {
       .eq("status", "live");
     if (error) throw error;
     return { ok: true as const };
+  } catch (error) {
+    return toActionError(error);
+  }
+}
+
+/** 송출 화면이 서버의 실제 방송 상태를 다시 읽는다(시작 되돌리기에 실패했을 때). 소유자만. */
+export async function getBroadcastStatus(id: string) {
+  try {
+    const broadcast = await getBroadcast(id);
+    assertOwner(await getCurrentUser(), broadcast);
+    return { status: broadcast.status };
   } catch (error) {
     return toActionError(error);
   }
