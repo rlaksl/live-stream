@@ -4,21 +4,26 @@ import {
   MediaSource,
   SegmentedFileOutput,
   StartEgressRequest,
+  TrackSource,
   type EgressInfo,
 } from "livekit-server-sdk";
 import { createAdminClient } from "@/lib/supabase";
-import { egressClient } from "@/lib/livekit";
+import { egressClient, roomService } from "@/lib/livekit";
 import { publisherIdentity } from "@/features/live/identity";
 
 const BUCKET = process.env.RECORDING_S3_BUCKET ?? "recordings";
 
 /**
  * 방송자의 송출을 HLS 조각으로 녹화해 Supabase Storage(S3 호환)에 올린다. (docs/adr/0002)
- * 영상은 방송자의 화면 공유(없으면 카메라), 오디오는 방송자의 모든 오디오 트랙(탭 소리 + 마이크)을 섞는다.
+ * 영상은 방송자의 화면 공유 또는 카메라, 오디오는 방송자의 모든 오디오 트랙(탭 소리 + 마이크)을 섞는다.
  */
 export async function startRecording(broadcastId: string, ownerId: string) {
   const identity = publisherIdentity(ownerId);
   const folder = `${broadcastId}/${Date.now()}`;
+  // preferScreenShare를 켜 둔 채 카메라만 송출하면 녹화 영상이 검게 저장됐다(소리만 정상).
+  // 그래서 실제로 화면 공유 트랙을 송출 중일 때만 켠다.
+  const publisher = await roomService().getParticipant(broadcastId, identity);
+  const sharingScreen = publisher.tracks.some((t) => t.source === TrackSource.SCREEN_SHARE);
 
   const info = await egressClient().startEgress(
     new StartEgressRequest({
@@ -26,7 +31,7 @@ export async function startRecording(broadcastId: string, ownerId: string) {
       source: {
         case: "media",
         value: new MediaSource({
-          video: { case: "participantVideo", value: { identity, preferScreenShare: true } },
+          video: { case: "participantVideo", value: { identity, preferScreenShare: sharingScreen } },
           // 이 참가자의 오디오를 모두 같은 채널(기본값: 양쪽)로 섞는다
           audio: { routes: [{ match: { case: "participantIdentity", value: identity } }] },
         }),
