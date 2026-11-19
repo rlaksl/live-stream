@@ -1,6 +1,6 @@
 # 녹화와 다시보기
 
-Status: ready-for-human
+Status: done
 Blocked by: 04, 05
 
 **타임박스 2시간 (시작 2026-11-18 22:13, 마감 00:13).** 시작 시각을 기록하고 2시간 안에 동작하지 않으면 보류하고 08·09를 먼저 한다.
@@ -14,8 +14,8 @@ LiveKit Participant egress → HLS 조각 → Supabase Storage(또는 R2). 녹�
 - [x] 다시보기 목록·상세, `hls.js` 재생 (Safari 기본 재생)
 - [x] 녹화 정보와 저장 위치가 DB에 저장되어 재시작 후에도 조회된다
 - [x] 방송 삭제 시 녹화 파일도 삭제
-- [ ] 시연용 녹화 1~2개 생성
-- [ ] 배포 환경에서 `egress_ended` 웹훅으로 녹화 `ready` 기록
+- [x] 시연용 녹화 1~2개 생성
+- [x] 배포 환경에서 `egress_ended` 웹훅으로 녹화 `ready` 기록
 
 ## Comments
 
@@ -35,3 +35,4 @@ LiveKit Participant egress → HLS 조각 → Supabase Storage(또는 R2). 녹�
   - 배포 엔드포인트 확인: 존재하지 않는 egress id로 `egress_ended`를 보냄(바뀐 행 0건). 서명 없음 → 401 `invalid signature`, 올바른 서명 → 200 `ok`. 배포된 코드가 서명을 검증하고 `egress_ended`를 처리한다.
   - LiveKit이 이 주소로 웹훅을 보내는 것은 방송자 탭 닫기 → `participant_left`로 약 1.3초 만에 종료 처리된 것으로 이미 확인됨(checklist "방송 중과 종료 상태"). `egress_ended`도 같은 웹훅 설정으로 전달된다.
   - **남은 직접 확인(다음 실제 녹화 때, 한도 추가 사용 없음):** 방송 종료 직후 DB 행을 1초 간격으로 지켜본다. 시청자 화면의 자동 새로고침은 방이 닫히는 순간(녹화 업로드 완료 전, egress 상태 ENDING)이라 직접 조회는 아무것도 하지 않는다. 그 뒤 몇 초 안에 아무도 페이지를 열지 않았는데 `ready`가 되면 웹훅 경로다.
+- 2026-11-19 웹훅 직접 확인: 시연 녹화 2회 모두 방송 종료 뒤 어떤 페이지도 열지 않았는데 약 4.9초 만에 `ready`가 됐다(송출 화면은 녹화 상태를 조회하지 않음) → `egress_ended` 웹훅 경로 동작 확인.
